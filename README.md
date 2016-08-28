@@ -6,7 +6,7 @@ jFunc,后来考虑到命名污染的问题,还是改成了对象版,名字就叫
 
 $push $pop each attr ATTR text html val append prepend before after empty remove css trigger on off one hover 
 
-hide show toggle fadeIn fadeOut fadeTo fadeToggle delay ready filter _$ 
+hide show toggle fadeIn fadeOut fadeTo fadeToggle delay filter _$ 
 
 以及所有事件方法(click之类)
 
