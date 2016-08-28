@@ -27,7 +27,7 @@ CSS: "div .class1,div .class2"
 jFun:"div .class1;div .class2"或"div .class1,.class2"
 
 
-不会在以":"和"["开头的搜索语句前自动补全"*", 只能写成"*[href$=.jpg]"之类, 以方便字节码调用
+不会在以":"和"["开头的搜索语句前自动补全"\*", 只能写成"\*[href$=.jpg]"之类, 以方便字节码调用
 
 为性能考虑,":not"不支持嵌套":not"(若有需要再支持嵌套:not)
 
