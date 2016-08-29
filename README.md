@@ -42,3 +42,8 @@ jFun:"div .class1;div .class2"或"div .class1,.class2"
 $("ul :each(li:=4)")选择了每一个ul下所有子级和"孙级"的第5个li
 
 虽然有":nth-child"这种东西,但速度上比":each"要慢很多, 只要不是必须选择子级元素, 可以用":each"代替child选择
+
+
+css和attr方法跟jQuery有些区别,例如:
+
+$("p").css("color:red;bg:yellow").attr(".alt='this is p'")
