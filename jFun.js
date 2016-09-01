@@ -164,7 +164,7 @@ function jFun(rs)	{this.rs = rs;}
         obj2[s2]=t;
     };
 
-    function lastOf(arr)	{return arr[arr.length-1];}
+    function lastOf(arr)    {return arr[arr.length-1];}
 
     function eachObj(arr, begin,end,directArr,fn)
     {	
@@ -339,9 +339,9 @@ function jFun(rs)	{this.rs = rs;}
     }
 
 
-    function splitBy(s,reg)	{return s.match(reg);}
+    function splitBy(s,reg) {return s.match(reg);}
     function splitBySpace(s){return splitBy(s,/[^\s\n]+/g);}
-    function splitByEqu(s)	{return s.match(/\=|[^\s\=]+/g);}
+    function splitByEqu(s)  {return s.match(/\=|[^\s\=]+/g);}
     function splitBySemicolon(s)	{return s.split(";")}
 
     function isParenMatch(s)
@@ -515,7 +515,7 @@ function jFun(rs)	{this.rs = rs;}
     }
 
 
-    function getDisplay(elem)	{return elem.style && elem.style.display;}
+    function getDisplay(elem)   {return elem.style && elem.style.display;}
 
     function isHidden(elem)
     {
@@ -646,388 +646,389 @@ function jFun(rs)	{this.rs = rs;}
 		"=" :	function(attr,val){return val === attr;}
 	};
 
-	jFun.bytecodeList =
-	{
-		"ID":	function(elem,name)	{return [ID(name)];}
+    jFun.bytecodeList =
+    {
+        "ID":   function(elem,name){return [ID(name)];}
 
-		,"CLASS":function(arr,name)	{	
-			return lessToMoreSelect(arr,CLASS,name);
-		} 
+        ,"CLASS":function(arr,name){	
+            return lessToMoreSelect(arr,CLASS,name);
+        } 
 
-		,"TAG":	function(arr,name)	{
-			return lessToMoreSelect(arr,TAG,name);
-		} 
+        ,"TAG": function(arr,name){
+            return lessToMoreSelect(arr,TAG,name);
+        } 
 
-		,"#":	function(arr,name)	{
-			return selectInArr(arr, function(e){return e.id===name;});
-		}
+        ,"#":   function(arr,name){
+            return selectInArr(arr, function(e){return e.id===name;});
+        }
 
-		,".":	function(arr,name)	{
-			return selectInArr(arr, function(e){return has(splitBySpace(e.className), name);});
-		}
+        ,".":   function(arr,name){
+            return selectInArr(arr, function(e){return has(splitBySpace(e.className), name);});
+        }
 
-		,"`":	function(arr,tagName)	{//tagName select
-			return selectInArr(arr, isTagName(upper(tagName)));
-		}
+        ,"`":   function(arr,tagName){//tagName select
+            return selectInArr(arr, isTagName(upper(tagName)));
+        }
 
-		,">":	function(arr, tagName)	{
-			return lessToMoreSelect(arr,CHILD,tagName);
-		}
+        ,">":   function(arr, tagName){
+            return lessToMoreSelect(arr,CHILD,tagName);
+        }
 
-		,"~":	function(arr, tagName)	{
-			return lessToMoreSelect(arr,SIBLING,tagName);
-		}
+        ,"~":   function(arr, tagName){
+            return lessToMoreSelect(arr,SIBLING,tagName);
+        }
 
-		,"+":	function(arr, tagName)
-		{
-			var tmpArr = [];
-			tagName = tagName ? upper(tagName) : tagName;
-			each(arr, function(e)
-			{
-				var list = e.parentNode.children,
-					i = indexOf(list,e)+1,
-					len = list.length;
-				if(i===len) return ;
-				if(!tagName){ tmpArr.push(list[i]); return ;}
+        ,"+":   function(arr, tagName)
+        {
+            var tmpArr = [];
+            tagName = tagName ? upper(tagName) : tagName;
+            each(arr, function(e)
+            {
+                var list = e.parentNode.children,
+                    i = indexOf(list,e)+1,
+                    len = list.length;
+                if(i===len) return ;
+                if(!tagName){ tmpArr.push(list[i]); return ;}
 
-				for(; i < len; ++i)
-				{
-					if(list[i].nodeName !== tagName)
-						continue;
-					tmpArr.push(list[i]);
-					return ;
-				}
-			});
-			return tmpArr;
-		}
+                for(; i < len; ++i)
+                {
+                    if(list[i].nodeName !== tagName)
+                        continue;
+                    tmpArr.push(list[i]);
+                    return ;
+                }
+            });
+            return tmpArr;
+        }
 
-		,"[":	function(arr, args)
-		{
-			var attr = args[0],
-				sign = args[1],
-				val  = args[2];
+        ,"[":   function(arr, args)
+        {
+            var attr = args[0],
+                sign = args[1],
+                val  = args[2];
 
-			return selectInArr(arr, function(e)
-			{
-				if(attr==="class")
-				{
-					var bool = has(splitBySpace(e.className), val);
-					return sign==="="? bool : (!bool);
-				}
-				else
-				{
-					var att = e.getAttribute(attr);
-					return att === null ? false : jFun.cmpSigns[sign](att, val) ;
-				}
-			});
-		}
+            return selectInArr(arr, function(e)
+            {
+                if(attr==="class")
+                {
+                    var bool = has(splitBySpace(e.className), val);
+                    return sign==="="? bool : (!bool);
+                }
+                else
+                {
+                    var att = e.getAttribute(attr);
+                    return att === null ? false : jFun.cmpSigns[sign](att, val) ;
+                }
+            });
+        }
 
-		,":each":	function(arr, argArr)
-		{
-			var fn = TAG,
-				name = argArr[0],
-				numFnName = argArr[1],
-				numFnArg = argArr[2];
-			if( shead(name) === "." )
-				fn=CLASS, name=sbody(name);
+        ,":each":   function(arr, argArr)
+        {
+            var fn = TAG,
+                name = argArr[0],
+                numFnName = argArr[1],
+                numFnArg = argArr[2];
+            if( shead(name) === "." )
+                fn=CLASS, name=sbody(name);
 
-			var tmpArr = [];
-			each(arr, function(e,i){
-				tmpArr = concatArr(tmpArr, jFun.bytecodeList[numFnName]( fn(name,e), numFnArg ) );
-			});
-			return tmpArr;
-		}
+            var tmpArr = [];
+            each(arr, function(e,i){
+                tmpArr = concatArr(tmpArr, jFun.bytecodeList[numFnName]( fn(name,e), numFnArg ) );
+            });
+            return tmpArr;
+        }
 
-		,":not":	function(arr)
-		{
-			each(arr, function(e,i){e.notIndexArr = i;});
-			notSign = true;
-			return arr;
-		}
+        ,":not":    function(arr)
+        {
+            each(arr, function(e,i){e.notIndexArr = i;});
+            notSign = true;
+            return arr;
+        }
 
-		,"(":	function(arr)	
-		{
-			tmpStack.unshift([]);
-			tmpStack.push(arr);
-			return arr;
-		}
+        ,"(":   function(arr)	
+        {
+            tmpStack.unshift([]);
+            tmpStack.push(arr);
+            return arr;
+        }
 
-		,",":	function(arr)	
-		{
-			tmpStack[0] = concatArr( tmpStack[0], arr );
-			return lastOf(tmpStack);
-		}
+        ,",":   function(arr)	
+        {
+            tmpStack[0] = concatArr( tmpStack[0], arr );
+            return lastOf(tmpStack);
+        }
 
-		,")":	function(arr)
-		{
-			tmpStack[0] = concatArr( tmpStack[0], arr );
-			return notGet(tmpStack.pop(), tmpStack.shift());
-		}
+        ,")":   function(arr)
+        {
+            tmpStack[0] = concatArr( tmpStack[0], arr );
+            return notGet(tmpStack.pop(), tmpStack.shift());
+        }
 
-		,":first":	function(arr){return [arr[0]];}
-		,":last":	function(arr){return [arr[arr.length-1]];}
-		,":=":		function(arr,arg){return [selectByNum(arr, +arg)];}
-		,":<":		function(arr,arg){return slice(arr, 0, +arg);}
-		,":>":		function(arr,arg){return slice(arr, +arg+1) ;}
-		,":even":	function(arr){return slice(arr, 0, arr.length, 2);}
-		,":odd":	function(arr){return slice(arr, 1, arr.length, 2);}
+        ,":first":  function(arr){return [arr[0]];}
+        ,":last":   function(arr){return [arr[arr.length-1]];}
+        ,":=":      function(arr,arg){return [selectByNum(arr, +arg)];}
+        ,":<":      function(arr,arg){return slice(arr, 0, +arg);}
+        ,":>":      function(arr,arg){return slice(arr, +arg+1) ;}
+        ,":even":   function(arr){return slice(arr, 0, arr.length, 2);}
+        ,":odd":    function(arr){return slice(arr, 1, arr.length, 2);}
 
-		,":header":	function(arr){
-			return selectInArr(arr, function(e){return /^h\d/i.test(e.nodeName);});
-		}
+        ,":header": function(arr){
+            return selectInArr(arr, function(e){return /^h\d/i.test(e.nodeName);});
+        }
 
-		,":root":	function()	{return TAG("html");}
+        ,":root":   function(){return TAG("html");}
 
-		,":contains":function(arr, arg){
-			return selectInArr(arr, function(e){return has(e.innerText,arg);});
-		}
+        ,":contains":function(arr, arg){
+            return selectInArr(arr, function(e){return has(e.innerText,arg);});
+        }
 
-		,":empty":function(arr){
-			return selectInArr(arr, function(e){return ! e.firstChild;});
-		}
+        ,":empty":  function(arr){
+            return selectInArr(arr, function(e){return ! e.firstChild;});
+        }
 
-		,":parent":function(arr){
-			return selectInArr(arr, function(e){return e.innerHTML !== "";});
-		}
+        ,":parent": function(arr){
+            return selectInArr(arr, function(e){return e.innerHTML !== "";});
+        }
 
-		,":has":	function(arr, tagName){	//has tagName
-			return selectInArr(arr, function(e){return new RegExp("<"+tagName+"[\\s>]", "i").test(e.innerHTML);});
-		}
+        ,":has":    function(arr, tagName){	//has tagName
+            return selectInArr(arr, function(e){return new RegExp("<"+tagName+"[\\s>]", "i").test(e.innerHTML);});
+        }
 
-		,":hidden":	function(arr){
-			return selectInArr(arr, function(e){return isHidden(e);});
-		}
+        ,":hidden": function(arr){
+            return selectInArr(arr, function(e){return isHidden(e);});
+        }
 
-		,":visible":	function(arr){
-			return selectInArr(arr, function(e){return ! isHidden(e);});
-		}
+        ,":visible":function(arr){
+            return selectInArr(arr, function(e){return ! isHidden(e);});
+        }
 
-		,":input":	function(arr){
-			return selectInArr(arr, function(e){
-				return has(["INPUT","TEXTAREA","BUTTON","SELECT"], e.nodeName);
-			});
-		}
-		,":text":	makeFnSelectByInputType("text")
-		,":password":makeFnSelectByInputType("password")
-		,":radio":	makeFnSelectByInputType("radio")
-		,":checkbox":makeFnSelectByInputType("checkbox")
-		,":submit":	makeFnSelectByInputType("submit")
-		,":image":	makeFnSelectByInputType("image")
-		,":reset":	makeFnSelectByInputType("reset")
-		,":file":	makeFnSelectByInputType("file")
-		,":reset":	makeFnSelectByInputType("reset")
-		,":button":	function(arr){
-			return selectInArr(arr, function(e){
-				return isInputType(e,"button") || "BUTTON"===e.nodeName;
-			});
-		}
+        ,":input":  function(arr){
+            return selectInArr(arr, function(e){
+                return has(["INPUT","TEXTAREA","BUTTON","SELECT"], e.nodeName);
+            });
+        }
+        ,":text":   makeFnSelectByInputType("text")
+        ,":password":makeFnSelectByInputType("password")
+        ,":radio":  makeFnSelectByInputType("radio")
+        ,":checkbox":makeFnSelectByInputType("checkbox")
+        ,":submit": makeFnSelectByInputType("submit")
+        ,":image":  makeFnSelectByInputType("image")
+        ,":reset":  makeFnSelectByInputType("reset")
+        ,":file":   makeFnSelectByInputType("file")
+        ,":reset":  makeFnSelectByInputType("reset")
+        ,":button": function(arr){
+            return selectInArr(arr, function(e){
+                return isInputType(e,"button") || "BUTTON"===e.nodeName;
+            });
+        }
 
-		,":enabled":	function(arr){
-			return selectInArr(arr, function(e){return !e.disabled;});
-		}
+        ,":enabled":    function(arr){
+            return selectInArr(arr, function(e){return !e.disabled;});
+        }
 
-		,":disabled":	function(arr){
-			return selectInArr(arr, function(e){return e.disabled;});
-		}
+        ,":disabled":   function(arr){
+            return selectInArr(arr, function(e){return e.disabled;});
+        }
 
-		,":checked":	function(arr){a
-			return selectInArr(arr, function(e){
-				var name = e.nodeName;
-				return (name==="INPUT" && e.checked) || 
-						(name==="OPTION" && e.selected);
-			});
-		}
+        ,":checked":    function(arr){a
+            return selectInArr(arr, function(e){
+                var name = e.nodeName;
+                return (name==="INPUT" && e.checked) || 
+                        (name==="OPTION" && e.selected);
+            });
+        }
 
-		,":selected":	function(arr, arg){
-			return selectInArr(arr, function(e){return e.nodeName==="OPTION" && e.selected;});
-		}
+        ,":selected":   function(arr, arg){
+            return selectInArr(arr, function(e){return e.nodeName==="OPTION" && e.selected;});
+        }
 
-		,":only-child":		function(arr){
-			return selectInArr(arr, function(e){return e.parentNode.children.length===1;});
-		}
+        ,":only-child": function(arr){
+            return selectInArr(arr, function(e){return e.parentNode.children.length===1;});
+        }
 
-		,":only-of-type":	function(arr){
-			return selectInArr(arr, function(e){return isOnlyOfType(e);});
-		}
+        ,":only-of-type":function(arr){
+            return selectInArr(arr, function(e){return isOnlyOfType(e);});
+        }
 
-		,":first-child":	function(arr)
-		{
-			//return selectInArr(arr, function(e){return e===e.parentNode.firstChild;});
-			return selectInArr(arr, function(e){ return isNodeIndex(e,0); });	
-		}
+        ,":first-child":function(arr)
+        {
+            //return selectInArr(arr, function(e){return e===e.parentNode.firstChild;});
+            return selectInArr(arr, function(e){ return isNodeIndex(e,0); });	
+        }
 
-		,":last-child":	function(arr)
-		{
-			//return selectInArr(arr, function(e){return e===e.parentNode.lastChild;});
-			return selectInArr(arr, function(e){ return isNodeIndex(e,-1); });	
-		}
+        ,":last-child": function(arr)
+        {
+            //return selectInArr(arr, function(e){return e===e.parentNode.lastChild;});
+            return selectInArr(arr, function(e){ return isNodeIndex(e,-1); });	
+        }
 
-		,":first-of-type":	function(arr){
-			return selectInArr(arr, function(e){return indexOfSiblingsType(e)===0});
-		}
+        ,":first-of-type":function(arr){
+            return selectInArr(arr, function(e){return indexOfSiblingsType(e)===0});
+        }
 
-		,":last-of-type":	function(arr){
-			return selectInArr(arr, function(e){return indexOfSiblingsType(e,-1)===-1});
-		}
+        ,":last-of-type":function(arr){
+            return selectInArr(arr, function(e){return indexOfSiblingsType(e,-1)===-1});
+        }
 
-		,":nth-child":	function(arr,arg){
-			return selectInArr(arr, makeFnForNth(arg));
-		}
+        ,":nth-child":  function(arr,arg){
+            return selectInArr(arr, makeFnForNth(arg));
+        }
 
-		,":nth-of-type":	function(arr, arg){
-			return selectInArr(arr, makeFnForNth(arg,"type"));
-		}
-
-		,":sdf":	function(arr, arg){
-			return selectInArr(arr, function(e){return e;});
-		}
-	};
-
-
-	function execBytecode(arr, bcs)
-	{//*//".class:not([href],[src])"
-		for(var i= -1, len = bcs.length; ++i < len; )
-			arr = bcs[i].fn(arr, bcs[i].arg);
-	/*/
-		each(bcs, function(bc){arr=bc.fn(arr, bc.arg, g);})
-	//*/
-		return arr;
-	}
-
-	function execWord(rs,word)
-	{//.class1,.class2
-		var midRS = [];
-		each(word, function(bytecodes){
-			midRS = concatArr( midRS, execBytecode(rs,bytecodes) );
-		});
-		return midRS;
-	}
-
-	function execSentence(rs,sentence)
-	{//.class1,.class2  .class3,.class4
-		var midRS = rs;
-		each(sentence, function(word){
-			midRS = execWord(midRS,word);
-		});
-		return midRS;
-	}
-
-	function execTree(rs,tree)
-	{//sentence1 ; sentence2
-		var midRS = [];
-		each(tree, function(sentence){
-			midRS = concatArr( midRS, execSentence(rs,sentence) );
-		});
-		return midRS;
-	}
-
-	//var condition = /,|[\.#`][a-z0-9\_\-]+|[>+~][a-z0-9]*|[a-z\*][a-z0-9]*|\[[^\]]+\]|:not\(|\)|:[a-z\=<>][a-z]*\([^\)]+\)|:[a-z\-]+|:[\=<>]-\d|:[\=<>]\d/gi;
+        ,":nth-of-type":function(arr, arg){
+            return selectInArr(arr, makeFnForNth(arg,"type"));
+        }
+    /*
+        ,":sdf":    function(arr, arg){
+            return selectInArr(arr, function(e){return e;});
+        }
+    */
+    };
 
 
+    function execBytecode(arr, bcs)
+    {//*//".class:not([href],[src])"
+        for(var i= -1, len = bcs.length; ++i < len; )
+            arr = bcs[i].fn(arr, bcs[i].arg);
+    /*/
+        each(bcs, function(bc){arr=bc.fn(arr, bc.arg, g);})
+    //*/
+        return arr;
+    }
 
-	function makeBytecode(type,arg)	
-	{
-	//	return "RS=jFun.bytecodeList['"+type+"'](RS,'"+arg+"',g);\n";	
-		return {"fn":jFun.bytecodeList[type], "arg":arg};
-	}
+    function execWord(rs,word)
+    {//.class1,.class2
+        var midRS = [];
+        each(word, function(bytecodes){
+            midRS = concatArr( midRS, execBytecode(rs,bytecodes) );
+        });
+        return midRS;
+    }
 
-	function splitByCondition(s)
-	{
-		var //rspace = "[^\\s\\n]+",
-			rcomma = ",",
-			rclass_id_tag = "[\\.#`]+[a-z0-9\\_\\-]+",
-			rtag = "[a-z\\*][a-z0-9]*",
-			rnode = "[>+~][a-z0-9]*",
-			rattr = "\\[[^\\]]+\\]",
-			rnot = ":not(?=\\()|\\(|\\)",
-			rcolon_par = ":[a-z\\=<>][a-z\\-]*\\([^\\)]+\\)",
-			rcolon = ":[a-z\\-]+",
-			rcolon_sign_nega = ":[\\=<>]-\\d+",
-			rcolon_sign = ":[\\=<>]\\d+",
-			idReg=/^\#/,
-			classReg=/^\./,
-			tagReg=/^[a-z\*]/i;
-		var condition = new RegExp(rcomma+"|"+rclass_id_tag+"|"+rtag+"|"+rnode+"|"+rattr+"|"+rnot+"|"+rcolon_par+"|"+rcolon+"|"+rcolon_sign_nega+"|"+rcolon_sign,"gi");
-		s = splitBy(s,condition);
+    function execSentence(rs,sentence)
+    {//.class1,.class2  .class3,.class4
+        var midRS = rs;
+        each(sentence, function(word){
+            midRS = execWord(midRS,word);
+        });
+        return midRS;
+    }
 
-		for(var i=0, len = s.length; i < len; ++i)
-		{
-			if( /^[a-z\*]/i.test(s[i]) )
-				s[i] = makeBytecode("TAG", s[i]) ;
-			else if( /^[#`>+~\.]/.test(s[i])  ) 
-			{
-				s[i] = cutNeck(s[i]);
-				if( i===0 && has([".","#"], s[i].head) )
-					s[i] = makeBytecode( s[i].head==="#" ? "ID":"CLASS", s[i].body);
-				else
-					s[i] = makeBytecode( s[i].head, s[i].body ) ;
-			}
-			else if( /^\[/.test(s[i]) )
-			{
-				s[i] = s[i].substr(1, s[i].length-2);//
-				s[i] = splitBy(s[i], /[a-z]+|[\*\^\$\!]|\=.*/gi);
+    function execTree(rs,tree)
+    {//sentence1 ; sentence2
+        var midRS = [];
+        each(tree, function(sentence){
+            midRS = concatArr( midRS, execSentence(rs,sentence) );
+        });
+        return midRS;
+    }
 
-				var arg = [ s[i][0], null, null ] ;
-				switch(s[i].length)
-				{
-				case 3:	arg[1] = s[i][1]+"=" ;
-						arg[2] = sbody(s[i][2]) ;
-						break;
-				case 2:	arg[1] = "=" ;
-						arg[2] = sbody(s[i][1]) ;
-						break;
-				case 1:	arg[1] = "!=" ;
-						break;
-				}
-				s[i] = makeBytecode("[", arg) ;
-			}
-			else if(/^:/.test(s[i]))
-			{
-				s[i] = splitBy(s[i], /:[\=<>]|:[a-z\-]+|[^\(\)]+/gi);
-				if(s[i][0]===":each")
-				{
-					s[i][1] = splitBy(s[i][1], /[a-z\d]+|.+/gi);
-					var tmp = splitBy(s[i][1][1], /:[\=<>]|:[a-z\-]+|[^\(\)]+/gi);
-					s[i][1][1] = tmp[0];
-					s[i][1][2] = tmp[1];
-				}
-				s[i] = makeBytecode(s[i][0], s[i][1]) ;
-			}
-			else
-				s[i] = makeBytecode(s[i]) ;
-		}
-		return s;
-	}
+    //var condition = /,|[\.#`][a-z0-9\_\-]+|[>+~][a-z0-9]*|[a-z\*][a-z0-9]*|\[[^\]]+\]|:not\(|\)|:[a-z\=<>][a-z]*\([^\)]+\)|:[a-z\-]+|:[\=<>]-\d|:[\=<>]\d/gi;
 
 
-	var splitFn = [splitBySemicolon, splitBySpace, splitByComma, splitByCondition];
-	function syntaxTree(str,n)
-	{
-		var tree = splitFn[n](str);
-		if( splitFn[++n] )
-			each(tree, function(s){return syntaxTree(s,n)});
-		return tree;
-	}
+
+    function makeBytecode(type,arg)	
+    {
+    //	return "RS=jFun.bytecodeList['"+type+"'](RS,'"+arg+"',g);\n";	
+        return {"fn":jFun.bytecodeList[type], "arg":arg};
+    }
+
+    function splitByCondition(s)
+    {
+        var //rspace = "[^\\s\\n]+",
+            rcomma = ",",
+            rclass_id_tag = "[\\.#`]+[a-z0-9\\_\\-]+",
+            rtag = "[a-z\\*][a-z0-9]*",
+            rnode = "[>+~][a-z0-9]*",
+            rattr = "\\[[^\\]]+\\]",
+            rnot = ":not(?=\\()|\\(|\\)",
+            rcolon_par = ":[a-z\\=<>][a-z\\-]*\\([^\\)]+\\)",
+            rcolon = ":[a-z\\-]+",
+            rcolon_sign_nega = ":[\\=<>]-\\d+",
+            rcolon_sign = ":[\\=<>]\\d+",
+            idReg=/^\#/,
+            classReg=/^\./,
+            tagReg=/^[a-z\*]/i;
+        var condition = new RegExp(rcomma+"|"+rclass_id_tag+"|"+rtag+"|"+rnode+"|"+rattr+"|"+rnot+"|"+rcolon_par+"|"+rcolon+"|"+rcolon_sign_nega+"|"+rcolon_sign,"gi");
+        s = splitBy(s,condition);
+
+        for(var i=0, len = s.length; i < len; ++i)
+        {
+            if( /^[a-z\*]/i.test(s[i]) )
+                s[i] = makeBytecode("TAG", s[i]) ;
+            else if( /^[#`>+~\.]/.test(s[i])  ) 
+            {
+                s[i] = cutNeck(s[i]);
+                if( i===0 && has([".","#"], s[i].head) )
+                    s[i] = makeBytecode( s[i].head==="#" ? "ID":"CLASS", s[i].body);
+                else
+                    s[i] = makeBytecode( s[i].head, s[i].body ) ;
+            }
+            else if( /^\[/.test(s[i]) )
+            {
+                s[i] = s[i].substr(1, s[i].length-2);//
+                s[i] = splitBy(s[i], /[a-z]+|[\*\^\$\!]|\=.*/gi);
+
+                var arg = [ s[i][0], null, null ] ;
+                switch(s[i].length)
+                {
+                case 3:	arg[1] = s[i][1]+"=" ;
+                        arg[2] = sbody(s[i][2]) ;
+                        break;
+                case 2:	arg[1] = "=" ;
+                        arg[2] = sbody(s[i][1]) ;
+                        break;
+                case 1:	arg[1] = "!=" ;
+                        break;
+                }
+                s[i] = makeBytecode("[", arg) ;
+            }
+            else if(/^:/.test(s[i]))
+            {
+                s[i] = splitBy(s[i], /:[\=<>]|:[a-z\-]+|[^\(\)]+/gi);
+                if(s[i][0]===":each")
+                {
+                    s[i][1] = splitBy(s[i][1], /[a-z\d]+|.+/gi);
+                    var tmp = splitBy(s[i][1][1], /:[\=<>]|:[a-z\-]+|[^\(\)]+/gi);
+                    s[i][1][1] = tmp[0];
+                    s[i][1][2] = tmp[1];
+                }
+                s[i] = makeBytecode(s[i][0], s[i][1]) ;
+            }
+            else
+                s[i] = makeBytecode(s[i]) ;
+        }
+        return s;
+    }
 
 
-	jFun.trees={};
-	function _$(rs,str)
-	{
-		var tree = jFun.trees[str] = jFun.trees[str] || syntaxTree(str,0);
-		return execTree( rs, tree );
-	}
-	
-	jFun.init = function()
-	{
-		var a = typeArg(arguments),
-			selector = a.str0,
-			rs = a.except("str0") || docc;
-		rs = rs.length===undefined? [rs] : rs;
+    var splitFn = [splitBySemicolon, splitBySpace, splitByComma, splitByCondition];
+    function syntaxTree(str,n)
+    {
+        var tree = splitFn[n](str);
+        if( splitFn[++n] )
+            each(tree, function(s){return syntaxTree(s,n)});
+        return tree;
+    }
 
-		if(selector)
-			rs = _$(rs, selector);
-		return new jFun(rs);
-	}
+
+    jFun.trees={};
+    function _$(rs,str)
+    {
+        var tree = jFun.trees[str] = jFun.trees[str] || syntaxTree(str,0);
+        return execTree( rs, tree );
+    }
+
+    jFun.init = function()
+    {
+        var a = typeArg(arguments),
+            selector = a.str0,
+            rs = a.except("str0") || docc;
+        rs = rs.length===undefined? [rs] : rs;
+
+        if(selector)
+            rs = _$(rs, selector);
+        return new jFun(rs);
+    }
 
     if(window.$)
         window._$ = window.$;
@@ -1046,67 +1047,67 @@ function jFun(rs)	{this.rs = rs;}
 //==================================================================*/
 
 
-	function execEvent(event,target,fnArr)
-	{
-		if(fnArr)
-			each(fnArr, function(fn)
-			{
-				event.data = fn.data;
-				fn.call(target,event);
-			});
-	}
+    function execEvent(event,target,fnArr)
+    {
+        if(fnArr)
+            each(fnArr, function(fn)
+            {
+                event.data = fn.data;
+                fn.call(target,event);
+            });
+    }
 
-	function onEvent(event)
-	{
-		event = event || window.event || arguments.callee.caller.arguments[0];
-		var ns, type = event.type;
+    function onEvent(event)
+    {
+        event = event || window.event || arguments.callee.caller.arguments[0];
+        var ns, type = event.type;
 
-		if(ns = existNamespace(this,"events",type))
-		{
-			var target = event.target || event.srcElement;
-			
-			if(target===this)
-			{
-				if(!ns["this"]) return ;
-				ns = ns["this"];
-				execEvent(event,target,ns["always"]);
-				execEvent(event,target,ns["one"]);
-				ns["one"] = undefined;
-			}
-			else
-			{
-				if(!ns["delegate"]) return ;
-				ns = ns["delegate"];				
-				execEvent(event,target,ns[target.nodeName]);
-			}
-		}
-	}
+        if(ns = existNamespace(this,"events",type))
+        {
+            var target = event.target || event.srcElement;
+            
+            if(target===this)
+            {
+                if(!ns["this"]) return ;
+                ns = ns["this"];
+                execEvent(event,target,ns["always"]);
+                execEvent(event,target,ns["one"]);
+                ns["one"] = undefined;
+            }
+            else
+            {
+                if(!ns["delegate"]) return ;
+                ns = ns["delegate"];				
+                execEvent(event,target,ns[target.nodeName]);
+            }
+        }
+    }
 
-	function makeEvent(elem,type,target,selector,fn)
-	{
-		var ns = namespace(elem,"events",type,target);
-		if(ns[selector]===undefined)
-			ns[selector] = []; 
-		ns[selector].push(fn);
-		elem["on"+type] = onEvent;
-	}
+    function makeEvent(elem,type,target,selector,fn)
+    {
+        var ns = namespace(elem,"events",type,target);
+        if(ns[selector]===undefined)
+            ns[selector] = []; 
+        ns[selector].push(fn);
+        elem["on"+type] = onEvent;
+    }
 
-	function getOpacity(elem)
-	{
-		var t = elem.style.filter;
-		t = t && t.match(/\d+/)[0] ;
-		return +(elem.style.opacity)*100 || t  ;
-	}
+    function getOpacity(elem)
+    {
+        var t = elem.style.filter;
+        t = t && t.match(/\d+/)[0] ;
+        return +(elem.style.opacity)*100 || t  ;
+    }
 
-	function setOpacity(elem, opacity)
-	{
-		opacity = Math.round(opacity);
-		elem.style.cssText += "zoom:1;filter:Alpha(Opacity="+opacity+");opacity:"+opacity / 100+";";
-/*
-		elem.style.zoom=1	//for IE
-		elem.style.filter = "Alpha(Opacity="+opacity+")"; 
-		elem.style.opacity = opacity / 100; */
-	}
+    function setOpacity(elem, opacity)
+    {
+        opacity = Math.round(opacity);
+        elem.style.cssText += "zoom:1;filter:Alpha(Opacity="+opacity+");opacity:"+opacity / 100+";";
+    /*
+        elem.style.zoom=1	//for IE
+        elem.style.filter = "Alpha(Opacity="+opacity+")"; 
+        elem.style.opacity = opacity / 100; */
+    }
 
 
     function joinHTML(arr)
@@ -1176,360 +1177,360 @@ function jFun(rs)	{this.rs = rs;}
 
 
 
-	jFun.fn = jFun.prototype = 
-	{
-		backupStack : []
+    jFun.fn = jFun.prototype = 
+    {
+        backupStack:[]
 
-		,$push:	function(){this.backupStack.push(this.rs); return this;}
+        ,$push: function(){this.backupStack.push(this.rs); return this;}
 
-		,$pop:	function(){this.rs = this.backupStack.pop(); return this;}
+        ,$pop:  function(){this.rs = this.backupStack.pop(); return this;}
 
-		,each:	function(fn){each(this.rs, fn); return this;}
+        ,each:  function(fn){each(this.rs, fn); return this;}
 
-		,attr:	function(s)
-		{
-			var retVal, str = "",
-				replaceStr = 
-				{
-					".bgcolor":".style.backgroundColor"
-				};
-			each(arguments, function(s)
-			{
-				each(replaceStr, function(val,i){
-					s = s.replaceAll(i, val);
-				});
+        ,attr:  function(s)
+        {
+            var retVal, str = "",
+                replaceStr = 
+                {
+                    ".bgcolor":".style.backgroundColor"
+                };
+            each(arguments, function(s)
+            {
+                each(replaceStr, function(val,i){
+                    s = s.replaceAll(i, val);
+                });
 
-				if( !has(s,"=") ) 
-					retVal = this.rs[0][s];
-				else
-				{
-					s=s.split("=");
-					if(shead(s[1])===".")
-						s[1]="e"+s[1];
-					str += ("e"+s.join("=")+";")
-				}
-			});
-			if(str)
-				this.each(new Function("e","i",str));
-			return retVal===undefined ? this : retVal ;
-		}
+                if( !has(s,"=") ) 
+                    retVal = this.rs[0][s];
+                else
+                {
+                    s=s.split("=");
+                    if(shead(s[1])===".")
+                        s[1]="e"+s[1];
+                    str += ("e"+s.join("=")+";")
+                }
+            });
+            if(str)
+                this.each(new Function("e","i",str));
+            return retVal===undefined ? this : retVal ;
+        }
 
 
-		,ATTR:	function(attr, val )
-		{
-			if(val===undefined) 
-				return this.rs[0][attr];
+        ,ATTR:  function(attr, val )
+        {
+            if(val===undefined) 
+                return this.rs[0][attr];
 
-			return this.each( isFn(val) ? val : function(e){e[attr] = val} );
-		}
+            return this.each( isFn(val) ? val : function(e){e[attr] = val} );
+        }
 
-		,text:	function(val){
-			return this.ATTR("innerText", val);
-		}
+        ,text:  function(val){
+            return this.ATTR("innerText", val);
+        }
 
-		,html:	function(val){
-			return this.ATTR("innerHTML", val);
-		}
+        ,html:  function(val){
+            return this.ATTR("innerHTML", val);
+        }
 
-		,val:	function(val){
-			return this.ATTR("value", val);
-		}
+        ,val:   function(val){
+            return this.ATTR("value", val);
+        }
 
-		,append:	function(strs)
-		{
-			var str = joinHTML( isArrLike(strs)? strs : arguments);
-			if( str !== "" )
-				var fn = function(elem){elem.innerHTML += str;};
-			return this.ATTR("innerHTML", fn);
-		}
+        ,append:    function(strs)
+        {
+            var str = joinHTML( isArrLike(strs)? strs : arguments);
+            if( str !== "" )
+                var fn = function(elem){elem.innerHTML += str;};
+            return this.ATTR("innerHTML", fn);
+        }
 
-		,prepend:	function(strs)
-		{
-			var str = joinHTML( isArrLike(strs)? strs : arguments);
-			if( str !== "" )
-				fn = function(elem){elem.innerHTML = str + elem.innerHTML;} ; 
-			return this.ATTR("innerHTML", fn);
-		}
+        ,prepend:   function(strs)
+        {
+            var str = joinHTML( isArrLike(strs)? strs : arguments);
+            if( str !== "" )
+                fn = function(elem){elem.innerHTML = str + elem.innerHTML;} ; 
+            return this.ATTR("innerHTML", fn);
+        }
 
-		,before:	function(){insertNode(this.rs, arguments, insertBefore); return this;}
+        ,before:    function(){insertNode(this.rs, arguments, insertBefore); return this;}
 
-		,after:		function(){insertNode(this.rs, arguments, insertAfter); return this;}
+        ,after: function(){insertNode(this.rs, arguments, insertAfter); return this;}
 
-		,empty:		function(){return this.html("");}
+        ,empty: function(){return this.html("");}
 
-		,remove:	function(){return this.each(function(){this.parentNode.removeChild(this)});}
-			
-		,css:	function()	//s1,s2...retAttr
-		{
-			var retVal, str = "",
-				replaceStr = 
-				{
-					"bg":"background"
-				};
-			
-			each(arguments, function(s)
-			{
-				each(replaceStr, function(val,i){
-					s = s.replaceAll(i, val);
-				});
+        ,remove:    function(){return this.each(function(){this.parentNode.removeChild(this)});}
+            
+        ,css:   function()	//s1,s2...retAttr
+        {
+            var retVal, str = "",
+                replaceStr = 
+                {
+                    "bg":"background"
+                };
+            
+            each(arguments, function(s)
+            {
+                each(replaceStr, function(val,i){
+                    s = s.replaceAll(i, val);
+                });
 
-				if( has(s,":")) 
-					str += (";"+s+";");
-				else
-					retVal = this.rs[0].style[s];
-			});
+                if( has(s,":")) 
+                    str += (";"+s+";");
+                else
+                    retVal = this.rs[0].style[s];
+            });
 
-			if(str)
-				this.each( function(elem){elem.style.cssText += str ;});
-			return retVal===undefined ? this : retVal ;
-		}
+            if(str)
+                this.each( function(elem){elem.style.cssText += str ;});
+            return retVal===undefined ? this : retVal ;
+        }
 
-		,trigger:	function(type,dataArr)
-		{
-			var event = {"type":type, "target":undefined};
-			if( ! isArr(dataArr) )
-				 dataArr = [];
-			dataArr.unshift(event);
+        ,trigger:   function(type,dataArr)
+        {
+            var event = {"type":type, "target":undefined};
+            if( ! isArr(dataArr) )
+                 dataArr = [];
+            dataArr.unshift(event);
 
-			return this.each(function(elem){ 
-				dataArr[0].target = elem;
-				elem["on"+type].apply(elem,dataArr); 
-			});
-		}
-		
-		,on: function()//types[,selector][,data],fn[,one] || [selector,][data,]obj
-		{//attachEvent addEventListener
-			var a = typeArg(arguments),			
-				fn = a.fn0;
-			if(fn)
-			{
-				var types = splitBySpace(a.str0),
-					selector = a.str1,
-					data = a.obj0;
+            return this.each(function(elem){ 
+                dataArr[0].target = elem;
+                elem["on"+type].apply(elem,dataArr); 
+            });
+        }
+        
+        ,on:    function()//types[,selector][,data],fn[,one] || [selector,][data,]obj
+        {//attachEvent addEventListener
+            var a = typeArg(arguments),			
+                fn = a.fn0;
+            if(fn)
+            {
+                var types = splitBySpace(a.str0),
+                    selector = a.str1,
+                    data = a.obj0;
 
-				var obj = {};
-				each(types,function(type){
-					obj[type] = fn;
-				});
-			}
-			else
-			{
-				var selector = a.str0,
-					data = a.obj1 ? a.obj0 : data, 
-					obj =  a.obj1 || a.obj0;
-			}
-			each(obj, function(fn){fn.data = data;});
+                var obj = {};
+                each(types,function(type){
+                    obj[type] = fn;
+                });
+            }
+            else
+            {
+                var selector = a.str0,
+                    data = a.obj1 ? a.obj0 : data, 
+                    obj =  a.obj1 || a.obj0;
+            }
+            each(obj, function(fn){fn.data = data;});
 
-			var one = a.bool0,
-				target = selector ? "delegate" : "this";
-			selector = selector ? upper(selector) : (one ? "one" : "always");
+            var one = a.bool0,
+                target = selector ? "delegate" : "this";
+            selector = selector ? upper(selector) : (one ? "one" : "always");
 
-			return this.each(function(elem){
-				each(obj, function(fn,type){
-					makeEvent(elem,type,target,selector,fn);
-				});
-			});
-		}
+            return this.each(function(elem){
+                each(obj, function(fn,type){
+                    makeEvent(elem,type,target,selector,fn);
+                });
+            });
+        }
 
-		,off:	function(types,selector,fn)
-		{//detachEvent removeEventListener
-			var a = typeArg(arguments),
-				types = a.str0,
-				selector = a.str1,
-				fn = a.fn0;
-				 
-			if(types)
-				types = splitBySpace(types);
+        ,off:   function(types,selector,fn)
+        {//detachEvent removeEventListener
+            var a = typeArg(arguments),
+                types = a.str0,
+                selector = a.str1,
+                fn = a.fn0;
+                 
+            if(types)
+                types = splitBySpace(types);
 
-			switch(arguments.length)
-			{
-			case 0:	this.each(function(elem){elem.events = undefined;}); break;
+            switch(arguments.length)
+            {
+            case 0:	this.each(function(elem){elem.events = undefined;}); break;
 
-			case 1:	this.each(function(elem){
-						each(types, function(type){
-							elem.events[type] = undefined;
-						});
-					}); 
-					break;
-			
-			case 2:	
-					if(selector)
-					{
-						if(selector==="*")
-							this.each(function(elem){
-								each(types, function(type){
-									elem.events[type]["delegate"] = undefined;
-								});
-							}); 
-						else 
-							this.each(function(elem){
-								each(types, function(type){
-									elem.events[type]["delegate"][selector] = undefined;
-								});
-							}); 
-					}
-					else if(fn)
-					{
-						this.each(function(elem){
-							each(types, function(type){
-								var ns = elem.events[type]["this"]["always"],
-									i = indexOf(ns,fn);
-								if(i>-1)
-									ns.splice(i, 1);
-							});
-						}); 
-					}
-					break;
+            case 1:	this.each(function(elem){
+                        each(types, function(type){
+                            elem.events[type] = undefined;
+                        });
+                    }); 
+                    break;
+            
+            case 2:	
+                    if(selector)
+                    {
+                        if(selector==="*")
+                            this.each(function(elem){
+                                each(types, function(type){
+                                    elem.events[type]["delegate"] = undefined;
+                                });
+                            }); 
+                        else 
+                            this.each(function(elem){
+                                each(types, function(type){
+                                    elem.events[type]["delegate"][selector] = undefined;
+                                });
+                            }); 
+                    }
+                    else if(fn)
+                    {
+                        this.each(function(elem){
+                            each(types, function(type){
+                                var ns = elem.events[type]["this"]["always"],
+                                    i = indexOf(ns,fn);
+                                if(i>-1)
+                                    ns.splice(i, 1);
+                            });
+                        }); 
+                    }
+                    break;
 
-			case 3:	this.each(function(elem){
-						each(types, function(type){
-							var ns = elem.events[type]["delegate"][selector],
-								i = indexOf(ns,fn);
-							if(i>-1)
-								ns.splice(i, 1);
-						});
-					}); 
-					break;
-			}
-			return this;
-		}
+            case 3:	this.each(function(elem){
+                        each(types, function(type){
+                            var ns = elem.events[type]["delegate"][selector],
+                                i = indexOf(ns,fn);
+                            if(i>-1)
+                                ns.splice(i, 1);
+                        });
+                    }); 
+                    break;
+            }
+            return this;
+        }
 
-		,one:	function(types,data,fn)
-		{
-			var arr = [];
-			arr.push.apply(arr,arguments);
-			arr.push(true);
-			return this.on.apply(this,arr);
-		}
+        ,one:   function(types,data,fn)
+        {
+            var arr = [];
+            arr.push.apply(arr,arguments);
+            arr.push(true);
+            return this.on.apply(this,arr);
+        }
 
-		,hover:		function(enterFn,leaveFn)
-		{
-			leaveFn = lastOf(arguments);
-			this.mouseleave(leaveFn);
+        ,hover: function(enterFn,leaveFn)
+        {
+            leaveFn = lastOf(arguments);
+            this.mouseleave(leaveFn);
 
-			if(arguments.length>1)	//enterFn
-				this.mouseenter(enterFn);
-			return this;
-		}
+            if(arguments.length>1)	//enterFn
+                this.mouseenter(enterFn);
+            return this;
+        }
 
-		,hide:		function()
-		{
-			return this.each(function(e)
-			{
-				e.style.display = "none";
-			});
-		}
+        ,hide:  function()
+        {
+            return this.each(function(e)
+            {
+                e.style.display = "none";
+            });
+        }
 
-		,show:		function()
-		{
-			return this.each(function(e)
-			{
-				e.style.display = "block";
-			});
-		}
+        ,show:  function()
+        {
+            return this.each(function(e)
+            {
+                e.style.display = "block";
+            });
+        }
 
-		,toggle:	function()
-		{
-			switch(arguments.length)
-			{
-			case 0:	return this[isHidden(this.rs[0]) ? "show" : "hide"]();
+        ,toggle:    function()
+        {
+            switch(arguments.length)
+            {
+            case 0:	return this[isHidden(this.rs[0]) ? "show" : "hide"]();
 
-			case 1: return this[argArr[0] ? "show" : "hide"]();	//argArr[0]=bool
+            case 1: return this[argArr[0] ? "show" : "hide"]();	//argArr[0]=bool
 
-			default:
-				
-			}
-		}
+            default:
+                
+            }
+        }
 
-		,fade:	function(io,time,fn,limit)
-		{
-		//	var a = typeArg(arguments,1);
-			time = time || 1000 ;
-		//	fn = a.fn0;
-			
-			var swit = { 'in': [isLess,0,100,1], 
-						'out': [isMore,100,0,-1] },
-				cmpFn	=	swit[io][0],
-				opacity	=	getOpacity(this.rs[0]) || swit[io][1],
-				frame	=	40
-				speed	=	swit[io][3] * (frame*100/time) ;
-								// opacity/speed==time/frame			
-			limit = limit || swit[io][2];
+        ,fade:  function(io,time,fn,limit)
+        {
+        //	var a = typeArg(arguments,1);
+            time = time || 1000 ;
+        //	fn = a.fn0;
+            
+            var swit = { 'in': [isLess,0,100,1], 
+                        'out': [isMore,100,0,-1] },
+                cmpFn	=	swit[io][0],
+                opacity	=	getOpacity(this.rs[0]) || swit[io][1],
+                frame	=	40
+                speed	=	swit[io][3] * (frame*100/time) ;
+                                // opacity/speed==time/frame			
+            limit = limit || swit[io][2];
 
-			if(io==="in")
-				this.show();
-			
-			var thiss = this;	//var tt1=new Date();
-			(function()
-			{
-				thiss.each( function(e){setOpacity(e, opacity);} );
-				opacity += speed, time -= frame;
+            if(io==="in")
+                this.show();
+            
+            var thiss = this;	//var tt1=new Date();
+            (function()
+            {
+                thiss.each( function(e){setOpacity(e, opacity);} );
+                opacity += speed, time -= frame;
 
-				if( cmpFn(opacity, limit) && time>0 )
-					setTimeout(arguments.callee, frame);
-				else
-				{//var tt2=new Date();alert(tt2+"-"+tt1+"="+(tt2-tt1));
-					if(opacity<1) 
-						thiss.hide();
-					if(fn) 
-						thiss.each(fn);
-				}
-			})();
+                if( cmpFn(opacity, limit) && time>0 )
+                    setTimeout(arguments.callee, frame);
+                else
+                {//var tt2=new Date();alert(tt2+"-"+tt1+"="+(tt2-tt1));
+                    if(opacity<1) 
+                        thiss.hide();
+                    if(fn) 
+                        thiss.each(fn);
+                }
+            })();
 
-			return this;
-		}
+            return this;
+        }
 
-		,fadeIn:	function(time,fn)
-		{
-			var thiss = this;
-			setTimeout(function(){thiss.fade.call(thiss,"in",time,fn)}, this.delayTime)
-			return this;
-		}
+        ,fadeIn:    function(time,fn)
+        {
+            var thiss = this;
+            setTimeout(function(){thiss.fade.call(thiss,"in",time,fn)}, this.delayTime)
+            return this;
+        }
 
-		,fadeOut:	function(time,fn)
-		{
-			var thiss = this;
-			setTimeout(function(){thiss.fade.call(thiss,"out",time,fn)}, this.delayTime)
-			return this;
-		}
+        ,fadeOut:   function(time,fn)
+        {
+            var thiss = this;
+            setTimeout(function(){thiss.fade.call(thiss,"out",time,fn)}, this.delayTime)
+            return this;
+        }
 
-		,fadeTo:	function(opacity,time,fn)	
-		{
-			var thiss = this;
-			opacity = opacity*100;
-			setTimeout(function()
-			{
-				var	opacityNow = getOpacity(thiss.rs[0]) || 100,
-					io = opacityNow > opacity ? "out" : "in" ;
-				thiss.fade.call(thiss,io,time,fn,opacity);
-			}, this.delayTime);
-			return this;
-		}
+        ,fadeTo:    function(opacity,time,fn)	
+        {
+            var thiss = this;
+            opacity = opacity*100;
+            setTimeout(function()
+            {
+                var	opacityNow = getOpacity(thiss.rs[0]) || 100,
+                    io = opacityNow > opacity ? "out" : "in" ;
+                thiss.fade.call(thiss,io,time,fn,opacity);
+            }, this.delayTime);
+            return this;
+        }
 
-		,fadeToggle:function(time,fn)
-		{
-			var thiss = this;
-			setTimeout(function()
-			{
-				var io = isHidden(thiss.rs[0]) ? "in" : "out";
-				thiss.fade.call(thiss,io,time,fn);
-			}, this.delayTime)
-			return this;
-		}
-		
-		,delayTime:	0
-		,delay:		function(time){
-			this.delayTime += time;	
-			return this;
-		}
-/*
-		,xxxxx:		function()
-		{
-			
-		}
-*/
-	}
-	
+        ,fadeToggle:    function(time,fn)
+        {
+            var thiss = this;
+            setTimeout(function()
+            {
+                var io = isHidden(thiss.rs[0]) ? "in" : "out";
+                thiss.fade.call(thiss,io,time,fn);
+            }, this.delayTime)
+            return this;
+        }
+        
+        ,delayTime: 0
+        ,delay: function(time){
+            this.delayTime += time;	
+            return this;
+        }
+    /*
+        ,xxxxx: function()
+        {
+            
+        }
+    */
+    }
+
 
     var events="change select submit keydown keypress keyup error contextmenu "+
         "blur focus focusin focusout load resize scroll unload click dblclick "+
@@ -1551,17 +1552,17 @@ function jFun(rs)	{this.rs = rs;}
     });
 
 
-	var ns = jFun.bytecodeList;
-	ns[":eq"] = ns[":="];
-	ns[":lt"] = ns[":<"];
-	ns[":gt"] = ns[":>"];
+    var ns = jFun.bytecodeList;
+    ns[":eq"] = ns[":="];
+    ns[":lt"] = ns[":<"];
+    ns[":gt"] = ns[":>"];
 
-	ns = jFun.fn;
-	ns._$ = ns.filter = function(str)
-	{
-		this.rs = _$(this.rs, str);
-		return this;
-	}
+    ns = jFun.fn;
+    ns._$ = ns.filter = function(str)
+    {
+        this.rs = _$(this.rs, str);
+        return this;
+    }
 
 
 })();
