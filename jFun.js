@@ -1,571 +1,613 @@
 //author: Qiu
 //email : 41918235@qq.com
 
-var docc=document;
-
-/**/
-Number.prototype.tofixed = function(n)
-{
-	n = Math.pow(10, n);
-	return Math.round(this*n) / n;
-}
-String.prototype.replaceAll = function(s1,s2){return this.replace(new RegExp(s1,"gm"),s2);};
-
-function ready(fn)	{window.onload = function(){fn(jFun.init)}}
-
-function isOdd(n)	{return (n & 1);}
-function isEven(n)	{return !isOdd(n);}
-
-function lower(s)	{return s.toLowerCase();}
-function upper(s)	{return s.toUpperCase();}
-
-function isEqu(a,b)		{return a===b;}
-function notEqu(a,b)	{return a!==b;}
-function isMore(a,b)	{return a>b}
-function isLess(a,b)	{return a<b}
-function retTrue()		{return true;}
-
-function shead(s)	{return s.charAt(0);}
-function sbody(s)	{return s.substr(1);}
-function stail(s)	{return s.slice(-1);}
-function cutNeck(s)	{return {head:shead(s), body:sbody(s)};}
-function headUpper(s){return upper(shead(s))+lower(sbody(s));}
-
-function ltrim(s)	{return s.replace(/^\s+/,"");}
-function rtrim(s)	{return s.replace(/\s+$/,"");}
-function trim(s)	{return rtrim(ltrim(s));}
-
-
-
-var typeList={};
-function typeoff(obj)
-{//(NaN===NaN)===false ; isNaN(fn)===true
-	if(obj===null || obj===undefined || (typeof obj==="number" && isNaN(obj))) 
-		return String(obj);
-
-	var i = {}.toString.call(obj);
-	return typeList[i] = typeList[i] || lower(i.match(/[a-z]+/gi)[1]);
-}
-
-function isNum(e)	{return typeoff(e) === "number";}
-function isStr(e)	{return typeoff(e) === "string";}
-function isFn(e)	{return typeoff(e) === "function";}
-function isArr(e)	{return typeoff(e) === "array";} 
-function isObj(e)	{return typeoff(e) === "object";}
-function isArrLike(e){return e.length !== undefined;} 
-
-
-function indexOfSorted(arr,elem)
-{
-	var i, begin = 0, end = arr.length-1 ,
-		cmpFn = isMore;
-	while(begin<=end)
-	{
-		i = Math.floor( (begin+end)/2 );
-		if(elem<arr[i])
-			end = i-1;		//elem before arr[i]
-		else if(elem>arr[i])
-			begin = i+1;	//elem after arr[i]
-		else
-			return i;
-	}
-	return -1;
-}
-
-function indexOf(arr,elem, sorted)
-{
-	if(arr.indexOf)
-		return arr.indexOf(elem);
-	if(sorted)
-		return indexOfSorted(arr,elem);
-
-	if(isArrLike(arr))
-	{
-		for(var i=-1, len = arr.length; ++i < len; )
-		if(arr[i]===elem)
-			return i;
-		return -1;	
-	}
-	else
-	{
-		for(var i in arr)
-		if(obj[i]===elem)
-			return i;
-		return undefined;
-	}
-}
-
-function has(arr,e, sorted)	{ 
-	var val = indexOf(arr,e, sorted);
-	return typeof val==="number"? val>-1 : val;
-}
-
-function toArray(obj)
-{
-	if(isArr(obj))	return obj;
-	if(obj.toArray)	return obj.toArray();
-	try {
-		return Array.prototype.slice.call(obj,0)
-	}
-	catch(e)
-	{
-		var arr=[];
-		for(var i=-1, len=obj.length; ++i<len; )
-			arr.push(obj[i]);
-		return arr;
-	}
-}
-
-
-//function dftVal(a,b){return a===undefined ? b : a;}
-
-function typeAbb(s){
-	return s==="function"? "fn" : ( s==="boolean"? "bool" : s.substr(0,3) );
-}
-
-function typeArg(arr,begin,end)
-{
-	var types =	{	bool:0,	fn:0,
-					str:0,	num:0,
-					arr:0,	obj:0,
-					nul:0,	und:0,	NaN:0};
-	var obj={};
-	begin = begin || 0;
-	end = end || arr.length;
-
-	for(var i = begin-1; ++i < end; )
-	{
-		var t = typeAbb(typeoff(arr[i]));
-		obj[t + types[t]++] = arr[i];
-	//	if(obj[t]===undefined)
-	//		obj[t]=[];
-	//	obj[t].push(arr[i]); 
-	}
-
-	obj.except = function(s)
-	{
-		s += " except";
-		for(var i in this)
-			if(!has(s, i) )
-				return this[i];
-	};
-	return obj;
-}
-
-function swapObjAttr(obj1,s1,obj2,s2)
-{
-	if(arguments.length <4)
-		s2=obj2, obj2=obj1;
-
-	var t=obj1[s1];
-	obj1[s1]=obj2[s2];
-	obj2[s2]=t;
-};
-
-function lastOf(arr)	{return arr[arr.length-1];}
-
-function each(arr, begin,end,directArr,fn)
-{
-//	if(!arr) alert("arr is undefined");
-	var a = typeArg(arguments,1);
-	begin = a.num0 || 0;	
-	end =	a.num1 || arr.length;
-	fn =	a.fn0;		
-	directArr = a.arr0 || a.obj0 || arr;
-
-
-	var retVal;
-	if( isArrLike(arr) )
-	{//array like
-		for(var i= begin-1; ++i<end; )
-		{
-			retVal = fn.call(arr[i],arr[i], i) ;
-			if(retVal !== undefined)
-				directArr[i] = retVal;
-		}
-	}
-	else
-	{//object
-		for( var i in arr)
-		{
-			retVal = fn.call(arr[i],arr[i], i) ;
-			if(retVal !== undefined)
-				directArr[i] = retVal;
-		}
-	}
-	return directArr;
-}
-
-function map(arr,begin,end,type,fn)	
-{
-	type = type || ( isArr(arr) ? [] : {} );
-	return each(arr,begin,end,type,fn); 
-}
-
-
-function existNamespace(obj)//str1,str2....
-{
-	for(var i= 1-1, len = arguments.length; ++i < len; )
-	{
-		if(obj[arguments[i]]===undefined)
-			return false;
-		obj = obj[arguments[i]];
-	}
-	return obj;
-}
-
-function namespace(obj)//str1,str2....
-{
-	each(arguments,1,function(name)
-	{
-		if(obj[name]===undefined)
-			obj[name]={};
-		obj=obj[name];
-	});
-	return obj;
-}
-function arrspace(obj)//str1,str2....
-{
-	each(arguments,1,function(name)
-	{
-		if(obj[name]===undefined)
-			obj[name]=[];
-		obj=obj[name];
-	});
-}
-
-
-
-function concatOuter(obj,str)
-{
-	var htSign = {	object:	{h:"{", t:"}"},
-					array:	{h:"[", t:"]"},
-					string:	{h:'"', t:'"'}};
-	var type = typeoff(obj);
-	return htSign[type].h + str + htSign[type].t;
-}
-
-function outputObj(obj,n)
-{
-	var str = "",
-//		tabs = "",
-		type = typeoff(obj);
-
-//	for(var i=0; i<n; i++)
-//		tabs += "	";
-
-	if( has(["object","array"], type) )
-	{
-		var tmpArr = [],
-			bool = (type==="object") ;
-
-		str += ( (bool?"{":"["));
-		each(obj, function(elem,i){
-			tmpArr.push( (bool?('"'+i+'":'):"") + outputObj(elem,n+1) );
-		});
-		str += tmpArr.join("," )
-		str += ((bool?"}":"]") + "\n");
-	}
-	else if(type==="string")
-		str += ('"'+String(obj)+'"');
-	else
-		str += String(obj);
-	
-	return str;
-}
-
-function copyStr(str)
-{
-	var TEXTAREA = document.createElement("TEXTAREA");
-	TEXTAREA.value = str;
-	TEXTAREA.select();
-	TEXTAREA.createTextRange().execCommand("Copy");
-}
-
-
-function ajax(url,method,data,async,fn)
-{
-	var a = typeArg(arguments);
-	url = a.str0;
-	method = a.str1 || "GET",
-	data = a.str2 || "",
-	async = a.bool0 || true,
-	fn = a.fn0;
-	
-	var aj = new (window.XMLHttpRequest || ActiveXObject)("Microsoft.XMLHTTP");
-	aj.onreadystatechange = function(){
-		if(aj.readyState==4 && aj.status==200)
-			fn({//json:	aj.responseJSON,
-				text:	aj.responseText, 
-				xml:	aj.responseXML});
-	}
-
-	aj.open(method, url, async);
-	if(upper(method)==="GET")
-		aj.send();
-	else
-	{
-		aj.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-		aj.send(data);
-	}
-}
- 
-
-
-
-function splitBy(s,reg)	{return s.match(reg);}
-function splitBySpace(s){return splitBy(s,/[^\s\n]+/g);}
-function splitByEqu(s)	{return s.match(/\=|[^\s\=]+/g);}
-function splitBySemicolon(s)	{return s.split(";")}
-
-function isParenMatch(s)
-{
-	var left = s.match(/\(/g) || [], 
-		right= s.match(/\)/g) || [] ;
-	return left.length===right.length;
-}
-
-function splitByComma(s)
-{
-	var head=shead(s);
-	s=sbody(s).split(",");
-	for(var i=0; i<s.length; i++)
-		if( ! isParenMatch(s[i]) )
-		{
-			if(s[i+1]===undefined) break;
-			s[i] += (","+s[i+1]) ;
-			s.splice(i+1,1);
-		}
-	s[0] = head+s[0];
-	return s;
-}
-
-function concatArr(arr, obj)	//modify arr unless ( arr===[] && isArr(obj) )
-{
-	if( arr===[] && isArr(obj) )
-		return obj;
-
-	try { [].push.apply(arr,obj); }
-	catch(e){
-		for(var i=-1, len=obj.length; ++i<len; )
-			arr.push(obj[i]);
-	}
-	return arr;
-}
-
-
-function selectInArr(arr, begin,end, directArr, condFn)
-{
-	var a = typeArg(arguments,1);
-	begin = a.num0 || 0;	
-	end =	a.num1 || arr.length;
-	condFn=	a.fn0;		
-	directArr = a.arr0 || [];
-	
-	for(var i= begin-1; ++i<end; )
-		if( condFn(arr[i]) )
-			directArr.push(arr[i]);
-	return directArr;
-}
-
-
-function isTagName(name){
-	name = upper(name);
-	return function(e){return e.nodeName === name;};
-}
-
-function isTagNameNot(name){
-	name = upper(name);
-	return function(e){return upper(e.nodeName) !== name} ;
-} 
-
-//function NAME(s)		{return document.getElementsByName(s);}
-function QUERY(s,elem)		{return (elem||docc).querySelector(s)}
-function QUERYALL(s,elem)	{return (elem||docc).querySelectorAll(s)}
-function ID(s)			{return docc.getElementById(s);}
-function TAG(s,elem)	
-{
-	elem= (elem || docc);
-	return (s==="*"&&elem.all) ? elem.all : elem.getElementsByTagName(s);
-}
-
-function getElemsByClass(s)
-{
-	return selectInArr( TAG("*",this), function(elem){
-		return has(elem.className.split(" "), s);
-	});
-};
-
-function CLASS(s,elem)	
-{
-	elem= (elem || docc);
-	elem.getElementsByClassName = elem.getElementsByClassName || getElemsByClass ;
-	return elem.getElementsByClassName(s);
-}
-
-function CHILD()
-{
-	var a = typeArg(arguments),
-		tagName = a.str0,
-		list = (a.htm0 || a.obj0).children;
-
-	return !tagName ? list : selectInArr(list, isTagName(tagName) );
-}
-
-function SIBLING()
-{
-	var a = typeArg(arguments),
-		tagName = a.str0,
-		elem = a.htm0 || a.obj0,
-		list = elem.parentNode.children,
-		cmpFn = tagName ? isTagName(tagName) : retTrue ;
-
-	return selectInArr(list, cmpFn, indexOf(list,elem)+1);
-}
-
-
-function lessToMoreSelect(arr,fn,name)
-{
-//	if(arr.length===1)
-//		return fn(name,arr[0]);
-	var tmp=[];
-	each(arr,function(elem){tmp = concatArr(tmp, fn(name,elem))});
-	return tmp;
-}
-
-function ifNegaIndex(arr, n){return n += (n<0 ? arr.length : 0);}
-
-function slice(arr, begin, end, step)
-{
-	begin =	ifNegaIndex(arr, begin);
-	end =	end || arr.length;
-	end =	ifNegaIndex(arr, end);
-
-	if( !step )
-	{
-		try {return [].slice.call(arr, begin, end);}
-		catch(e){}
-	}
-
-	step =	step || 1 ;
-
-	var tmpArr = [];
-	for(var i=begin; i<end; i+=step)
-		tmpArr.push(arr[i]);
-	return tmpArr;
-}
-
-function selectByNum(arr,n)	{return arr[ifNegaIndex(arr,n)];}
-
-
-function timer(fn)
-{
-	var args = slice(arguments,1),
-		t1 = new Date();
-
-	fn.apply(this, args);
-
-	var t2=new Date();
-	return t2-t1;
-}
-
-
-function getDisplay(elem)	{return elem.style && elem.style.display;}
-
-function isHidden(elem)
-{
-	do{
-		if(getDisplay(elem)==="none" || elem.type==="hidden")
-			return true;
-	}while(elem = elem.parentNode);
-	return false;
-}
-
-
-function isInputType(e,type){
-	return e.type && type==lower(e.type) && "INPUT"==e.nodeName;
-}
-
-function selectInArrByInputType(arr,type)
-{
-	return selectInArr(arr, function(e){return isInputType(e,type);});
-}
-
-function makeFnSelectByInputType(type)
-{
-	return function(arr){return selectInArrByInputType(arr, type);}
-}
-
-
-
-function isOnlyOfType(e)
-{
-	var sum = 0, tagName = e.nodeName, list = e.parentNode.children;
-	for(var i=0, len = list.length; i < len; ++i)
-		if( tagName===list[i].nodeName )
-			if(++sum>1) return false ;
-	return true;
-}
-
-function indexOfSiblings(node,n)
-{
-	var list = node.parentNode.children,
-		i = indexOf(list, node),
-		n = n || 0;
-	return n<0 ? (i-list.length) : i ;
-}
-
-function isNodeIndex(e,n){return indexOfSiblings(e,n) === n;}
-
-function indexOfSiblingsType(node, n)
-{
-	var list = selectInArr(node.parentNode.children, isTagName(node.nodeName)),
-		i = indexOf(list, node),
-		n = n || 0;
-	return n<0 ? (i-list.length) : i ;
-
-/*
-		begin = 0, end = list.length, fCmpFn = isLess, step = 1;
-	if(n && n<0)
-		begin = list.length-1, end = -1, fCmpFn = isMore, step = -1;
-	for(var index = 0; fCmpFn(begin, end); begin += step)
-	{
-		if( cmpFn(list[begin].nodeName, tagName) )
-		{
-			index += step;
-			if(list[begin] === node)
-				return index+(index<0 ? 0 : -1);
-		}
-	}*/
-}
-
-function makeFnForNth(arg,indexof)
-{
-	indexof = indexof ? "indexOfSiblingsType" : "indexOfSiblings" ;
-	var fn, n ;
-	if( has(["odd","even"],arg) )
-		fn = new Function("e","return is"+headUpper(arg)+"("+indexof+"(e));");
-	else if(isNum(n = +arg))
-	{
-		n = n<0? n : n-1 ;//index from 1, not 0
-		fn = new Function("e","return "+indexof+"(e,"+n+")==="+n);
-	}
-	else
-	{//an + b
-		arg = arg.match(/[0-9]+/gi);
-		arg[0] = +arg[0] ;
-		arg[1] = arg[1] ? (+arg[1]) : 0;
-		fn = new Function("e","return ("+indexof+"(e)+1) % "+arg[0]+"==="+arg[1]);
-	}//	alert(fn);
-	return fn;
-}
-
-
-function jFun(rs)	{this.rs = toArray(rs);}
+function jFun(rs)	{this.rs = rs;}
+
+
+(function(){
+    var docc=document;
+
+
+
+    Number.prototype.tofixed = function(n)
+    {
+        n = Math.pow(10, n);
+        return Math.round(this*n) / n;
+    }
+    String.prototype.replaceAll = function(s1,s2){return this.replace(new RegExp(s1,"gm"),s2);};
+
+    function ready(fn)	{window.onload = function(){fn(jFun.init)}}
+
+    function isOdd(n)	{return (n & 1);}
+    function isEven(n)	{return !isOdd(n);}
+
+    function lower(s)	{return s.toLowerCase();}
+    function upper(s)	{return s.toUpperCase();}
+
+    function isEqu(a,b)		{return a===b;}
+    function notEqu(a,b)	{return a!==b;}
+    function isMore(a,b)	{return a>b}
+    function isLess(a,b)	{return a<b}
+    function retTrue()		{return true;}
+
+    function shead(s)	{return s.charAt(0);}
+    function sbody(s)	{return s.substr(1);}
+    function stail(s)	{return s.slice(-1);}
+    function cutNeck(s)	{return {head:shead(s), body:sbody(s)};}
+    function headUpper(s){return upper(shead(s))+lower(sbody(s));}
+
+    function ltrim(s)	{return s.replace(/^\s+/,"");}
+    function rtrim(s)	{return s.replace(/\s+$/,"");}
+    function trim(s)	{return rtrim(ltrim(s));}
+
+
+
+    var typeList={};
+    function typeoff(obj)
+    {//(NaN===NaN)===false ; isNaN(fn)===true
+        if(obj===null || obj===undefined || (typeof obj==="number" && isNaN(obj))) 
+            return String(obj);
+
+        var i = {}.toString.call(obj);
+        return typeList[i] = typeList[i] || lower(i.match(/[a-z]+/gi)[1]);
+    }
+
+    function isNum(e)	{return typeoff(e) === "number";}
+    function isStr(e)	{return typeoff(e) === "string";}
+    function isFn(e)	{return typeoff(e) === "function";}
+    function isArr(e)	{return typeoff(e) === "array";} 
+    function isObj(e)	{return typeoff(e) === "object";}
+    function isArrLike(e){return e.length !== undefined;} 
+
+
+    function indexOfSorted(arr,elem)
+    {
+        var i, begin = 0, end = arr.length-1 ;
+        while(begin<=end)
+        {
+            i = Math.floor( (begin+end)/2 );
+            if(elem<arr[i])
+                end = i-1;		//elem before arr[i]
+            else if(elem>arr[i])
+                begin = i+1;	//elem after arr[i]
+            else
+                return i;
+        }
+        return -1;
+    }
+
+    function indexOf(arr,elem, sorted)
+    {
+        if(arr.indexOf)
+            return arr.indexOf(elem);
+        if(sorted)
+            return indexOfSorted(arr,elem);
+
+        if(isArrLike(arr))
+        {
+            for(var i=-1, len = arr.length; ++i < len; )
+                if(arr[i]===elem)
+                    return i;
+            return -1;	
+        }
+        else
+        {
+            for(var i in arr)
+                if(arr[i]===elem)
+                    return i;
+            return undefined;
+        }
+    }
+
+    function has(arr,e, sorted)	{ 
+        var index = indexOf(arr,e, sorted);
+        return typeof index==="number"? index>-1 : index;
+    }
+
+    function toArray(obj)
+    {
+        if(isArr(obj))	return obj;
+        if(obj.toArray)	return obj.toArray();
+        try {
+            return Array.prototype.slice.call(obj,0)
+        }
+        catch(e)
+        {
+            var arr=[];
+            for(var i=-1, len=obj.length; ++i<len; )
+                arr.push(obj[i]);
+            return arr;
+        }
+    }
+
+
+    //function dftVal(a,b){return a===undefined ? b : a;}
+
+    function typeAbb(s){
+        return s==="function"? "fn" : ( s==="boolean"? "bool" : s.substr(0,3) );
+    }
+
+    function typeArg(arr,begin,end)
+    {
+        var types =	{};
+        var obj={};
+        begin = begin || 0;
+        end = end || arr.length;
+
+        for(var i = begin-1; ++i < end; )
+        {
+            var t = typeAbb(typeoff(arr[i]));
+            (types[t]) ? (types[t]++) : (types[t]=0);
+            obj[t + types[t]] = arr[i];
+        //	if(obj[t]===undefined)
+        //		obj[t]=[];
+        //	obj[t].push(arr[i]); 
+        }
+
+        obj.except = function(s)
+        {
+            s += " except";
+            for(var i in this)
+                if(!has(s, i) )
+                    return this[i];
+        };
+        return obj;
+    }
+
+    function swapObjAttr(obj1,s1,obj2,s2)
+    {
+        if(arguments.length <4)
+            s2=obj2, obj2=obj1;
+
+        var t=obj1[s1];
+        obj1[s1]=obj2[s2];
+        obj2[s2]=t;
+    };
+
+    function lastOf(arr)	{return arr[arr.length-1];}
+
+    function eachObj(arr, begin,end,directArr,fn)
+    {	
+        var a = typeArg(arguments,1);
+        begin = a.num0 || 0;	
+        end =	a.num1 || arr.length;
+        fn =	a.fn0;
+        directArr = a.arr0 || a.obj0 || arr;
+
+        var retVal;
+        for(var i in arr)
+        {
+            retVal = fn.call(arr[i],arr[i], i) ;
+            if(retVal !== undefined)
+                directArr[i] = retVal;
+        }
+        return directArr;
+    }
+    eval(eachObj.toString().replace("eachObj","eachArr").replace("var i in arr","var i= begin-1; ++i<end;"))
+
+    function each(arr, begin,end,directArr,fn)
+    {
+        return ( isArrLike(arr) ? eachArr : eachObj ).apply(this,arguments);
+    /*
+        
+        var a = typeArg(arguments,1);
+        begin = a.num0 || 0;	
+        end =	a.num1 || arr.length;
+        fn =	a.fn0;
+        directArr = a.arr0 || a.obj0 || arr;
+        
+        var retVal;
+        if( isArrLike(arr) ) 
+        {//array like
+            for(var i= begin-1; ++i<end; )
+            {
+                retVal = fn.call(arr[i],arr[i], i) ;
+                if(retVal !== undefined)
+                    directArr[i] = retVal;
+            }
+        }
+        else
+        {//object
+            for( var i in arr)
+            {
+                retVal = fn.call(arr[i],arr[i], i) ;
+                if(retVal !== undefined)
+                    directArr[i] = retVal;
+            }
+        }
+        return directArr;*/
+    }
+
+    function map(arr,begin,end,type,fn)	
+    {
+        type = type || ( isArr(arr) ? [] : {} );
+        return each(arr,begin,end,type,fn); 
+    }
+
+
+    function existNamespace(obj)//str1,str2....
+    {
+        for(var i= 1-1, len = arguments.length; ++i < len; )
+        {
+            if(obj[arguments[i]]===undefined)
+                return false;
+            obj = obj[arguments[i]];
+        }
+        return obj;
+    }
+
+    function namespace(obj)//str1,str2....
+    {
+        each(arguments,1,function(name)
+        {
+            if(obj[name]===undefined)
+                obj[name]={};
+            obj=obj[name];
+        });
+        return obj;
+    }
+    function arrspace(obj)//str1,str2....
+    {
+        each(arguments,1,function(name)
+        {
+            if(obj[name]===undefined)
+                obj[name]=[];
+            obj=obj[name];
+        });
+    }
+
+
+    function scrollExec(time,fnArr)
+    {
+        var i = 0, len = fnArr.length;
+        function fn(){fnArr[ (i++)%len ]()}
+        return setInterval(fn,time);
+    }
+
+    function concatOuter(obj,str)
+    {
+        var htSign = {	object:	{h:"{", t:"}"},
+                        array:	{h:"[", t:"]"},
+                        string:	{h:'"', t:'"'}};
+        var type = typeoff(obj);
+        return htSign[type].h + str + htSign[type].t;
+    }
+
+    function outputObj(obj,n)
+    {
+        var str = "",
+    //		tabs = "",
+            type = typeoff(obj);
+
+    //	for(var i=0; i<n; i++)
+    //		tabs += "	";
+
+        if( has(["object","array"], type) )
+        {
+            var tmpArr = [],
+                bool = (type==="object") ;
+
+            str += ( (bool?"{":"["));
+            each(obj, function(elem,i){
+                tmpArr.push( (bool?('"'+i+'":'):"") + outputObj(elem,n+1) );
+            });
+            str += tmpArr.join("," )
+            str += ((bool?"}":"]") + "\n");
+        }
+        else if(type==="string")
+            str += ('"'+String(obj)+'"');
+        else
+            str += String(obj);
+        
+        return str;
+    }
+
+    function copyStr(str)
+    {
+        var TEXTAREA = document.createElement("TEXTAREA");
+        TEXTAREA.value = str;
+        TEXTAREA.select();
+        TEXTAREA.createTextRange().execCommand("Copy");
+    }
+
+
+    function ajax(url,method,data,async,fn)
+    {
+        var a = typeArg(arguments);
+        url = a.str0;
+        method = a.str1 || "GET",
+        data = a.str2 || "",
+        async = a.bool0 || true,
+        fn = a.fn0;
+        
+        var aj = new (window.XMLHttpRequest || ActiveXObject)("Microsoft.XMLHTTP");
+        aj.onreadystatechange = function(){
+            if(aj.readyState==4 && aj.status==200)
+                fn({//json:	aj.responseJSON,
+                    text:	aj.responseText, 
+                    xml:	aj.responseXML});
+        }
+
+        aj.open(method, url, async);
+        if(upper(method)==="GET")
+            aj.send();
+        else
+        {
+            aj.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+            aj.send(data);
+        }
+    }
+
+
+    function splitBy(s,reg)	{return s.match(reg);}
+    function splitBySpace(s){return splitBy(s,/[^\s\n]+/g);}
+    function splitByEqu(s)	{return s.match(/\=|[^\s\=]+/g);}
+    function splitBySemicolon(s)	{return s.split(";")}
+
+    function isParenMatch(s)
+    {
+        var left = s.match(/\(/g) || [], 
+            right= s.match(/\)/g) || [] ;
+        return left.length===right.length;
+    }
+
+    function splitByComma(s)
+    {
+        var head=shead(s);
+        s=sbody(s).split(",");
+        for(var i=0; i<s.length; i++)
+            if( ! isParenMatch(s[i]) )
+            {
+                if(s[i+1]===undefined) break;
+                s[i] += (","+s[i+1]) ;
+                s.splice(i+1,1);
+            }
+        s[0] = head+s[0];
+        return s;
+    }
+
+    if(!window.JSON)
+    {
+        window.JSON = {};
+        window.JSON.stringify = outputObj;
+        window.JSON.parse = function(str)
+        {//not strict
+            function notJSON(){alert("not JSON:  "+str);}
+            try {return eval("("+str+")");}
+            catch(e){notJSON()}
+        }
+    }
+
+
+     
+
+
+
+
+    function concatArr(arr, obj)	//modify arr unless ( arr===[] && isArr(obj) )
+    {
+        if( arr===[] && isArr(obj) )
+            return obj;
+
+        try { [].push.apply(arr,obj); }
+        catch(e){
+            for(var i=-1, len=obj.length; ++i<len; )
+                arr.push(obj[i]);
+        }
+        return arr;
+    }
+
+
+    function selectInArr(arr, begin,end, directArr, condFn)
+    {
+        var a = typeArg(arguments,1);
+        begin = a.num0 || 0;	
+        end =	a.num1 || arr.length;
+        condFn=	a.fn0;		
+        directArr = a.arr0 || [];
+        
+        for(var i= begin-1; ++i<end; )
+            if( condFn(arr[i]) )
+                directArr.push(arr[i]);
+        return directArr;
+    }
+
+
+    function isTagName(name){
+        name = upper(name);
+        return function(e){return e.nodeName === name;};
+    }
+
+    function isTagNameNot(name){
+        name = upper(name);
+        return function(e){return upper(e.nodeName) !== name} ;
+    } 
+
+    //function NAME(s)		{return document.getElementsByName(s);}
+    function QUERY(s,elem)      {return (elem||docc).querySelector(s)}
+    function QUERYALL(s,elem)   {return (elem||docc).querySelectorAll(s)}
+
+    function ID(s)  {return docc.getElementById(s);}
+    function TAG(s,elem)	
+    {
+        elem= (elem || docc);
+        return (s==="*"&&elem.all) ? elem.all : elem.getElementsByTagName(s);
+    }
+
+    function getElemsByClass(s)
+    {
+        return selectInArr( TAG("*",this), function(elem){
+            return has(elem.className.split(" "), s);
+        });
+    };
+
+    function CLASS(s,elem)	
+    {
+        elem= (elem || docc);
+        elem.getElementsByClassName = elem.getElementsByClassName || getElemsByClass ;
+        return elem.getElementsByClassName(s);
+    }
+
+    function CHILD()
+    {
+        var a = typeArg(arguments),
+            tagName = a.str0,
+            list = (a.htm0 || a.obj0).children;
+
+        return !tagName ? list : selectInArr(list, isTagName(tagName) );
+    }
+
+    function SIBLING()
+    {
+        var a = typeArg(arguments),
+            tagName = a.str0,
+            elem = a.htm0 || a.obj0,
+            list = elem.parentNode.children,
+            cmpFn = tagName ? isTagName(tagName) : retTrue ;
+
+        return selectInArr(list, cmpFn, indexOf(list,elem)+1);
+    }
+
+
+    function lessToMoreSelect(arr,fn,name)
+    {
+    //	if(arr.length===1)
+    //		return fn(name,arr[0]);
+        var tmp=[];
+        each(arr,function(elem){tmp = concatArr(tmp, fn(name,elem))});
+        return tmp;
+    }
+
+    function ifNegaIndex(arr, n){return n += (n<0 ? arr.length : 0);}
+
+    function slice(arr, begin, end, step)
+    {
+        begin =	ifNegaIndex(arr, begin);
+        end =	end || arr.length;
+        end =	ifNegaIndex(arr, end);
+
+        if( !step )
+        {
+            try {return [].slice.call(arr, begin, end);}
+            catch(e){}
+        }
+
+        step =	step || 1 ;
+
+        var tmpArr = [];
+        for(var i=begin; i<end; i+=step)
+            tmpArr.push(arr[i]);
+        return tmpArr;
+    }
+
+    function selectByNum(arr,n)	{return arr[ifNegaIndex(arr,n)];}
+
+
+    function timer(fn)
+    {
+        var args = slice(arguments,1),
+            t1 = new Date();
+
+        fn.apply(this, args);
+
+        var t2=new Date();
+        return t2-t1;
+    }
+
+
+    function getDisplay(elem)	{return elem.style && elem.style.display;}
+
+    function isHidden(elem)
+    {
+        do{
+            if(getDisplay(elem)==="none" || elem.type==="hidden")
+                return true;
+        }while(elem = elem.parentNode);
+        return false;
+    }
+
+
+    function isInputType(e,type){
+        return e.type && type==lower(e.type) && "INPUT"==e.nodeName;
+    }
+
+    function selectInArrByInputType(arr,type)
+    {
+        return selectInArr(arr, function(e){return isInputType(e,type);});
+    }
+
+    function makeFnSelectByInputType(type)
+    {
+        return function(arr){return selectInArrByInputType(arr, type);}
+    }
+
+
+
+    function isOnlyOfType(e)
+    {
+        var sum = 0, tagName = e.nodeName, list = e.parentNode.children;
+        for(var i=0, len = list.length; i < len; ++i)
+            if( tagName===list[i].nodeName )
+                if(++sum>1) return false ;
+        return true;
+    }
+
+    function indexOfSiblings(node,n)
+    {
+        var list = node.parentNode.children,
+            i = indexOf(list, node),
+            n = n || 0;
+        return n<0 ? (i-list.length) : i ;
+    }
+
+    function isNodeIndex(e,n){return indexOfSiblings(e,n) === n;}
+
+    function indexOfSiblingsType(node, n)
+    {
+        var list = selectInArr(node.parentNode.children, isTagName(node.nodeName)),
+            i = indexOf(list, node),
+            n = n || 0;
+        return n<0 ? (i-list.length) : i ;
+
+    /*
+            begin = 0, end = list.length, fCmpFn = isLess, step = 1;
+        if(n && n<0)
+            begin = list.length-1, end = -1, fCmpFn = isMore, step = -1;
+        for(var index = 0; fCmpFn(begin, end); begin += step)
+        {
+            if( cmpFn(list[begin].nodeName, tagName) )
+            {
+                index += step;
+                if(list[begin] === node)
+                    return index+(index<0 ? 0 : -1);
+            }
+        }*/
+    }
+
+    function makeFnForNth(arg,indexof)
+    {
+        indexof = indexof ? "indexOfSiblingsType" : "indexOfSiblings" ;
+        var fn, n ;
+        if( has(["odd","even"],arg) )
+            fn = new Function("e","return is"+headUpper(arg)+"("+indexof+"(e));");
+        else if(isNum(n = +arg))
+        {
+            n = n<0? n : n-1 ;//index from 1, not 0
+            fn = new Function("e","return "+indexof+"(e,"+n+")==="+n);
+        }
+        else
+        {//an + b
+            arg = arg.match(/[0-9]+/gi);
+            arg[0] = +arg[0] ;
+            arg[1] = arg[1] ? (+arg[1]) : 0;
+            fn = new Function("e","return ("+indexof+"(e)+1) % "+arg[0]+"==="+arg[1]);
+        }//	alert(fn);
+        return fn;
+    }
+
 
 //========================private function below====================================
-(function()
-{
+//(function(){
 	var docc = document, tmpStack=[];
 
 	var notSign = false;
@@ -987,7 +1029,15 @@ function jFun(rs)	{this.rs = toArray(rs);}
 		return new jFun(rs);
 	}
 
-
+    if(window.$)
+        window._$ = window.$;
+    window.$ = jFun.init;
+    window.$.ready = ready;
+    window.$.noConflict = function()
+    {
+        var tmp; 
+        tmp=window.$, window.$=window._$, window._$=tmp;
+    }
 
 //==================================================================*/
 //==================================================================*/
@@ -1057,6 +1107,71 @@ function jFun(rs)	{this.rs = toArray(rs);}
 		elem.style.filter = "Alpha(Opacity="+opacity+")"; 
 		elem.style.opacity = opacity / 100; */
 	}
+
+
+    function joinHTML(arr)
+    {
+        var str="";
+        each(arr, function(e)
+        {
+            if( isStr(e) )	
+                str += e;
+            else 
+                str += e.outerHTML;
+        });	
+        return str;
+    }
+
+    function HTML2Node(arr)
+    {
+        var div = document.createElement("div");
+        div.innerHTML = joinHTML(arr);
+        return div.children;
+    }
+
+    function insertBefore(newNode,node){alert(typeoff(newNode))
+        node.parentNode.insertBefore(newNode, node);
+    }
+
+    function insertAfter(newNode,node)
+    {
+        var parent = node.parentNode,
+            list = parent.children,
+            i = indexOf(list,node);
+
+        if(i === list.length-1) 
+            parent.appendChild(newNode);
+        else
+            insertBefore(newNode, list[i+1]);	//node.nextSibling;
+    }
+
+    function repalceNode(newNode,oldNode){
+        oldNode.parentNode.replaceChild(newNode, oldNode);
+    }
+
+    function insertNode(rs, argArr, insertFn)
+    {
+        var nodes = HTML2Node(argArr);
+        each(rs, function(elem)
+        {
+            var parent = elem.parentNode,
+                tmp = parent.cloneNode();
+
+            repalceNode(tmp, parent);//fetch down
+            for(var i= nodes.length; --i > -1; )
+                insertFn(nodes[i], elem)
+            repalceNode(parent, tmp);//back
+        });
+    //	alert(nodes.length);
+    }
+    /*
+    var str="";
+    for(var i in jFun.fn)
+    {
+        str+= i+" ";
+    }
+    copyStr(str);
+    //*/
 
 
 
@@ -1415,6 +1530,27 @@ function jFun(rs)	{this.rs = toArray(rs);}
 */
 	}
 	
+
+    var events="change select submit keydown keypress keyup error contextmenu "+
+        "blur focus focusin focusout load resize scroll unload click dblclick "+
+        "mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave";
+
+    events = splitBySpace(events);
+    each(events, function(type)
+    {
+        jFun.fn[type] = function(data,fn)
+        {
+            if(arguments.length===0)	//trigger
+                return this.each(function(e){e["on"+type]({"type":type, "target":e})});
+
+            var a = typeArg(arguments),
+                fn = a.fn0,
+                data = a.obj0;
+            return this.on(type,data,fn);
+        }
+    });
+
+
 	var ns = jFun.bytecodeList;
 	ns[":eq"] = ns[":="];
 	ns[":lt"] = ns[":<"];
@@ -1426,107 +1562,8 @@ function jFun(rs)	{this.rs = toArray(rs);}
 		this.rs = _$(this.rs, str);
 		return this;
 	}
+
+
 })();
-
-jFun.init.ready = ready;
-if(!window.$) 
-	$ = jFun.init;
-var my = jFun.init;
-
-
-
-
-
-
-
-
-
-
-function joinHTML(arr)
-{
-	var str="";
-	each(arr, function(e)
-	{
-		if( isStr(e) )	
-			str += e;
-		else 
-			str += e.outerHTML;
-	});	
-	return str;
-}
-
-function HTML2Node(arr)
-{
-	var div = document.createElement("div");
-	div.innerHTML = joinHTML(arr);
-	return div.children;
-}
-
-function insertBefore(newNode,node){alert(typeoff(newNode))
-	node.parentNode.insertBefore(newNode, node);
-}
-
-function insertAfter(newNode,node)
-{
-	var parent = node.parentNode,
-		list = parent.children,
-		i = indexOf(list,node);
-
-	if(i === list.length-1) 
-		parent.appendChild(newNode);
-	else
-		insertBefore(newNode, list[i+1]);	//node.nextSibling;
-}
-
-function repalceNode(newNode,oldNode){
-	oldNode.parentNode.replaceChild(newNode, oldNode);
-}
-
-function insertNode(rs, argArr, insertFn)
-{
-	var nodes = HTML2Node(argArr);
-	each(rs, function(elem)
-	{
-		var parent = elem.parentNode,
-			tmp = parent.cloneNode();
-
-		repalceNode(tmp, parent);//fetch down
-		for(var i= nodes.length; --i > -1; )
-			insertFn(nodes[i], elem)
-		repalceNode(parent, tmp);//back
-	});
-//	alert(nodes.length);
-}
-/*
-var str="";
-for(var i in jFun.fn)
-{
-	str+= i+" ";
-}
-copyStr(str);
-//*/
-
-var events="change select submit keydown keypress keyup error contextmenu "+
-	"blur focus focusin focusout load resize scroll unload click dblclick "+
-	"mousedown mouseup mousemove mouseover mouseout mouseenter mouseleave";
-
-events = splitBySpace(events);
-each(events, function(type)
-{
-	jFun.fn[type] = function(data,fn)
-	{
-		if(arguments.length===0)	//trigger
-			return this.each(function(e){e["on"+type]({"type":type, "target":e})});
-
-		var a = typeArg(arguments),
-			fn = a.fn0,
-			data = a.obj0;
-		return this.on(type,data,fn);
-	}
-});
-		
-/**/
-
-
 
 
