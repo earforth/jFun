@@ -16,29 +16,29 @@ function jFun(rs)	{this.rs = rs;}
     }
     String.prototype.replaceAll = function(s1,s2){return this.replace(new RegExp(s1,"gm"),s2);};
 
-    function ready(fn)	{window.onload = function(){fn(jFun.init)}}
+    function ready(fn)  {window.onload = function(){fn(jFun.init)}}
 
-    function isOdd(n)	{return (n & 1);}
-    function isEven(n)	{return !isOdd(n);}
+    function isOdd(n)   {return (n & 1);}
+    function isEven(n)  {return !isOdd(n);}
 
-    function lower(s)	{return s.toLowerCase();}
-    function upper(s)	{return s.toUpperCase();}
+    function lower(s)   {return s.toLowerCase();}
+    function upper(s)   {return s.toUpperCase();}
 
-    function isEqu(a,b)		{return a===b;}
-    function notEqu(a,b)	{return a!==b;}
-    function isMore(a,b)	{return a>b}
-    function isLess(a,b)	{return a<b}
-    function retTrue()		{return true;}
+    function isEqu(a,b)     {return a===b;}
+    function notEqu(a,b)    {return a!==b;}
+    function isMore(a,b)    {return a>b}
+    function isLess(a,b)    {return a<b}
+    function retTrue()      {return true;}
 
-    function shead(s)	{return s.charAt(0);}
-    function sbody(s)	{return s.substr(1);}
-    function stail(s)	{return s.slice(-1);}
-    function cutNeck(s)	{return {head:shead(s), body:sbody(s)};}
+    function shead(s)   {return s.charAt(0);}
+    function sbody(s)   {return s.substr(1);}
+    function stail(s)   {return s.slice(-1);}
+    function cutNeck(s) {return {head:shead(s), body:sbody(s)};}
     function headUpper(s){return upper(shead(s))+lower(sbody(s));}
 
-    function ltrim(s)	{return s.replace(/^\s+/,"");}
-    function rtrim(s)	{return s.replace(/\s+$/,"");}
-    function trim(s)	{return rtrim(ltrim(s));}
+    function ltrim(s)   {return s.replace(/^\s+/,"");}
+    function rtrim(s)   {return s.replace(/\s+$/,"");}
+    function trim(s)    {return rtrim(ltrim(s));}
 
 
 
@@ -52,11 +52,11 @@ function jFun(rs)	{this.rs = rs;}
         return typeList[i] = typeList[i] || lower(i.match(/[a-z]+/gi)[1]);
     }
 
-    function isNum(e)	{return typeoff(e) === "number";}
-    function isStr(e)	{return typeoff(e) === "string";}
-    function isFn(e)	{return typeoff(e) === "function";}
-    function isArr(e)	{return typeoff(e) === "array";} 
-    function isObj(e)	{return typeoff(e) === "object";}
+    function isNum(e)   {return typeoff(e) === "number";}
+    function isStr(e)   {return typeoff(e) === "string";}
+    function isFn(e)    {return typeoff(e) === "function";}
+    function isArr(e)   {return typeoff(e) === "array";} 
+    function isObj(e)   {return typeoff(e) === "object";}
     function isArrLike(e){return e.length !== undefined;} 
 
 
@@ -99,7 +99,7 @@ function jFun(rs)	{this.rs = rs;}
         }
     }
 
-    function has(arr,e, sorted)	{ 
+    function has(arr,e, sorted){ 
         var index = indexOf(arr,e, sorted);
         return typeof index==="number"? index>-1 : index;
     }
@@ -342,7 +342,8 @@ function jFun(rs)	{this.rs = rs;}
     function splitBy(s,reg) {return s.match(reg);}
     function splitBySpace(s){return splitBy(s,/[^\s\n]+/g);}
     function splitByEqu(s)  {return s.match(/\=|[^\s\=]+/g);}
-    function splitBySemicolon(s)	{return s.split(";")}
+
+    function splitBySemicolon(s)    {return s.split(";")}
 
     function isParenMatch(s)
     {
@@ -384,7 +385,7 @@ function jFun(rs)	{this.rs = rs;}
 
 
 
-    function concatArr(arr, obj)	//modify arr unless ( arr===[] && isArr(obj) )
+    function concatArr(arr, obj)    //modify arr unless ( arr===[] && isArr(obj) )
     {
         if( arr===[] && isArr(obj) )
             return obj;
@@ -1500,7 +1501,7 @@ function jFun(rs)	{this.rs = rs;}
             opacity = opacity*100;
             setTimeout(function()
             {
-                var	opacityNow = getOpacity(thiss.rs[0]) || 100,
+                var opacityNow = getOpacity(thiss.rs[0]) || 100,
                     io = opacityNow > opacity ? "out" : "in" ;
                 thiss.fade.call(thiss,io,time,fn,opacity);
             }, this.delayTime);
