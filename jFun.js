@@ -166,30 +166,9 @@ function jFun(rs)	{this.rs = rs;}
 
     function lastOf(arr)    {return arr[arr.length-1];}
 
-    function eachObj(arr, begin,end,directArr,fn)
-    {	
-        var a = typeArg(arguments,1);
-        begin = a.num0 || 0;	
-        end =	a.num1 || arr.length;
-        fn =	a.fn0;
-        directArr = a.arr0 || a.obj0 || arr;
-
-        var retVal;
-        for(var i in arr)
-        {
-            retVal = fn.call(arr[i],arr[i], i) ;
-            if(retVal !== undefined)
-                directArr[i] = retVal;
-        }
-        return directArr;
-    }
-    eval(eachObj.toString().replace("eachObj","eachArr").replace("var i in arr","var i= begin-1; ++i<end;"))
 
     function each(arr, begin,end,directArr,fn)
     {
-        return ( isArrLike(arr) ? eachArr : eachObj ).apply(this,arguments);
-    /*
-        
         var a = typeArg(arguments,1);
         begin = a.num0 || 0;	
         end =	a.num1 || arr.length;
@@ -215,12 +194,13 @@ function jFun(rs)	{this.rs = rs;}
                     directArr[i] = retVal;
             }
         }
-        return directArr;*/
+        return directArr;
     }
+
 
     function map(arr,begin,end,type,fn)	
     {
-        type = type || ( isArr(arr) ? [] : {} );
+        type = type || ( isArrLike(arr) ? [] : {} );
         return each(arr,begin,end,type,fn); 
     }
 
