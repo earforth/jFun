@@ -7,8 +7,6 @@ function jFun(rs)	{this.rs = rs;}
 (function(){
     var docc=document;
 
-
-
     Number.prototype.tofixed = function(n)
     {
         n = Math.pow(10, n);
@@ -182,7 +180,10 @@ function jFun(rs)	{this.rs = rs;}
             {
                 retVal = fn.call(arr[i],arr[i], i) ;
                 if(retVal !== undefined)
+                {
+                    if(retVal===false) break;                
                     directArr[i] = retVal;
+                }
             }
         }
         else
@@ -191,7 +192,10 @@ function jFun(rs)	{this.rs = rs;}
             {
                 retVal = fn.call(arr[i],arr[i], i) ;
                 if(retVal !== undefined)
+                {
+                    if(retVal===false) break;                
                     directArr[i] = retVal;
+                }
             }
         }
         return directArr;
@@ -408,8 +412,8 @@ function jFun(rs)	{this.rs = rs;}
     function QUERY(s,elem)      {return (elem||docc).querySelector(s)}
     function QUERYALL(s,elem)   {return (elem||docc).querySelectorAll(s)}
 
-    function ID(s)  {return docc.getElementById(s);}
-    function TAG(s,elem)	
+    window.ID = function ID(s)  {return docc.getElementById(s);}
+    window.TAG = function TAG(s,elem)	
     {
         elem= (elem || docc);
         return (s==="*"&&elem.all) ? elem.all : elem.getElementsByTagName(s);
@@ -422,7 +426,7 @@ function jFun(rs)	{this.rs = rs;}
         });
     };
 
-    function CLASS(s,elem)	
+    window.CLASS = function CLASS(s,elem)	
     {
         elem= (elem || docc);
         elem.getElementsByClassName = elem.getElementsByClassName || getElemsByClass ;
