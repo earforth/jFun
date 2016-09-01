@@ -1,0 +1,63 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title> demo </title>
+<meta name="Generator" content="EditPlus">
+<meta name="Author" content="">
+<meta name="Keywords" content="">
+<meta name="Description" content="">
+<script type="text/javascript" src='jFun.js'></script>
+<script type="text/javascript">
+<!--
+$.ready(function()
+{
+    function tag(name,html,attr){return "<"+name+" "+(attr||"")+">"+html+"</"+name+">"}
+    function td(html,attr){return tag("td",html,attr);}
+    function tr(html,attr){return tag("tr",html,attr);}
+    function table(html,attr){return tag("table",html,attr);}
+    var sTable = "", sTr = "", sTd;
+    for(var i=0; i<10; i++)
+    {
+        sTd = "";
+        for(var j=0; j<10; j++)
+            sTd += td(i+""+j);
+        sTr += tr(sTd)
+    }
+    sTable = table(sTr,"border=1 width='100%'");
+    $("#table").html(sTable);
+    $("td").attr(".clicked='red'",".bgcolor='white'",".backup=.bgcolor");
+    $("#table").on("td",
+                    {	"mouseover":function(){$(this).attr(".bgcolor='yellow'")},
+                        "mouseout": function(){$(this).attr(".bgcolor=.backup")},
+                        "click":function()
+                        {
+                            $(this)
+                                .attr(".bgcolor=.clicked"
+                                    ,".clicked=.backup"
+                                    ,".backup=.bgcolor")
+                        }
+                    }
+			);
+
+    var input = ID("input");
+    $(input).keydown(function(event)
+    {
+        if(event.keyCode===13)
+            $("*:button").click();
+    })
+})
+
+//-->
+</script>
+</head>
+
+<body>
+<div id="" class="" align='center'>
+    <input style="width:372px;" type="text" id="input" value='td:not(:<4)'/>
+    <input type="button" value="select" onclick="$('td,tr').css('bg:white');$(input.value).css('bg:red')">
+</div>
+<div id="table" class="">
+	
+</div>
+</body>
+</html>
