@@ -15,6 +15,7 @@ $.ready(function()
     function td(html,attr){return tag("td",html,attr);}
     function tr(html,attr){return tag("tr",html,attr);}
     function table(html,attr){return tag("table",html,attr);}
+
     var sTable = "", sTr = "", sTd;
     for(var i=0; i<10; i++)
     {
@@ -24,6 +25,7 @@ $.ready(function()
         sTr += tr(sTd)
     }
     sTable = table(sTr,"border=1 width='100%'");
+
     $("#table").html(sTable);
     $("td").attr(".clicked='red'",".bgcolor='white'",".backup=.bgcolor");
     $("#table").on("td",
@@ -31,19 +33,23 @@ $.ready(function()
                         "mouseout": function(){$(this).attr(".bgcolor=.backup")},
                         "click":function()
                         {
-                            $(this)
-                                .attr(".bgcolor=.clicked"
-                                    ,".clicked=.backup"
-                                    ,".backup=.bgcolor")
+                            $(this).attr(".bgcolor=.clicked"
+                                        ,".clicked=.backup"
+                                        ,".backup=.bgcolor")
                         }
                     }
 			);
 
-    var input = ID("input");
-    $(input).keydown(function(event)
+    $("#input").keydown(function(event)
     {
         if(event.keyCode===13)
             $("*:button").click();
+    })
+
+    $("*:button").click(function()
+    {
+        $('*:not(:button)').css('bg:white');
+        $(ID('input').value).css('bg:red');
     })
 })
 
@@ -54,7 +60,7 @@ $.ready(function()
 <body>
 <div id="" class="" align='center'>
     <input style="width:372px;" type="text" id="input" value='td:not(:<4)'/>
-    <input type="button" value="select" onclick="$('td,tr').css('bg:white');$(input.value).css('bg:red')">
+    <input type="button" value="select" onclick="">
 </div>
 <div id="table" class="">
 	
