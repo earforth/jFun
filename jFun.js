@@ -346,8 +346,9 @@ function jFun(rs)	{this.rs = rs;}
                 if(s[i+1]===undefined) break;
                 s[i] += (","+s[i+1]) ;
                 s.splice(i+1,1);
+                i--;
             }
-        s[0] = head+s[0];
+        s[0] = head+s[0];alert(s.join(""));
         return s;
     }
 
@@ -500,7 +501,9 @@ function jFun(rs)	{this.rs = rs;}
     }
 
 
-    function getDisplay(elem)   {return elem.style && elem.style.display;}
+
+
+    function getDisplay(elem)   {return elem.style && elem.style.display || (elem.hidden?"none":"block");}
 
     function isHidden(elem)
     {
@@ -598,15 +601,13 @@ function jFun(rs)	{this.rs = rs;}
 	var notSign = false;
 	function notGet(big,small)
 	{
-		var tmp; 
-	//	if(big.length < small.length)
-	//		tmp=big, big=small, small=tmp;
-
-		if( !notSign )
-			return small;
-
+		var tmp=[];
+        if(notSign)
+            each(small, function(e,i){if(!e){tmp.push(big[i]);}});
+        else
+            each(small, function(e,i){if(e){tmp.push(e);}});
 		notSign = false;
-		tmp=[];
+        return tmp;
 		var begin=-1, end;
 	//	small.push({notIndexArr: [big.length]});
 		small.push({notIndexArr: big.length});
@@ -725,27 +726,32 @@ function jFun(rs)	{this.rs = rs;}
 
         ,":not":    function(arr)
         {
-            each(arr, function(e,i){e.notIndexArr = i;});
             notSign = true;
             return arr;
         }
 
         ,"(":   function(arr)	
         {
-            tmpStack.unshift([]);
+            each(arr, function(e,i){e.notIndexArr = i;});
+            tmpStack.unshift(new Array(arr.length));
             tmpStack.push(arr);
             return arr;
         }
 
         ,",":   function(arr)	
-        {
-            tmpStack[0] = concatArr( tmpStack[0], arr );
+        {alert(",,,,,,")
+            each(arr,function(e){
+                tmpStack[0][e.notIndexArr] = e;
+            });alert(arr.length)
             return lastOf(tmpStack);
         }
 
         ,")":   function(arr)
         {
-            tmpStack[0] = concatArr( tmpStack[0], arr );
+            each(arr,function(e){
+                tmpStack[0][e.notIndexArr] = e;
+             //   input.value=e.notIndexArr;
+            });alert(arr.length)
             return notGet(tmpStack.pop(), tmpStack.shift());
         }
 
@@ -873,7 +879,11 @@ function jFun(rs)	{this.rs = rs;}
     function execBytecode(arr, bcs)
     {//*//".class:not([href],[src])"
         for(var i= -1, len = bcs.length; ++i < len; )
+        {
+            
+        alert(indexOf(jFun.bytecodeList,bcs[i].fn)+":"+bcs[i].arg)
             arr = bcs[i].fn(arr, bcs[i].arg);
+        }
     /*/
         each(bcs, function(bc){arr=bc.fn(arr, bc.arg, g);})
     //*/
@@ -912,7 +922,7 @@ function jFun(rs)	{this.rs = rs;}
 
 
     function makeBytecode(type,arg)	
-    {
+    {//alert(type+":"+arg)
     //	return "RS=jFun.bytecodeList['"+type+"'](RS,'"+arg+"',g);\n";	
         return {"fn":jFun.bytecodeList[type], "arg":arg};
     }
