@@ -348,7 +348,7 @@ function jFun(rs)	{this.rs = rs;}
                 s.splice(i+1,1);
                 i--;
             }
-        s[0] = head+s[0];alert(s.join(""));
+        s[0] = head+s[0];
         return s;
     }
 
@@ -739,10 +739,10 @@ function jFun(rs)	{this.rs = rs;}
         }
 
         ,",":   function(arr)	
-        {alert(",,,,,,")
+        {
             each(arr,function(e){
                 tmpStack[0][e.notIndexArr] = e;
-            });alert(arr.length)
+            });
             return lastOf(tmpStack);
         }
 
@@ -751,7 +751,7 @@ function jFun(rs)	{this.rs = rs;}
             each(arr,function(e){
                 tmpStack[0][e.notIndexArr] = e;
              //   input.value=e.notIndexArr;
-            });alert(arr.length)
+            });
             return notGet(tmpStack.pop(), tmpStack.shift());
         }
 
@@ -881,7 +881,7 @@ function jFun(rs)	{this.rs = rs;}
         for(var i= -1, len = bcs.length; ++i < len; )
         {
             
-        alert(indexOf(jFun.bytecodeList,bcs[i].fn)+":"+bcs[i].arg)
+        //alert(indexOf(jFun.bytecodeList,bcs[i].fn)+":"+bcs[i].arg)
             arr = bcs[i].fn(arr, bcs[i].arg);
         }
     /*/
@@ -1125,7 +1125,7 @@ function jFun(rs)	{this.rs = rs;}
         return div.children;
     }
 
-    function insertBefore(newNode,node){alert(typeoff(newNode))
+    function insertBefore(newNode,node){//alert(typeoff(newNode))
         node.parentNode.insertBefore(newNode, node);
     }
 
