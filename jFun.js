@@ -413,8 +413,8 @@ function jFun(rs)	{this.rs = rs;}
     function QUERY(s,elem)      {return (elem||docc).querySelector(s)}
     function QUERYALL(s,elem)   {return (elem||docc).querySelectorAll(s)}
 
-    window.ID = function ID(s)  {return docc.getElementById(s);}
-    window.TAG = function TAG(s,elem)	
+    function ID(s)  {return docc.getElementById(s);}
+    function TAG(s,elem)	
     {
         elem= (elem || docc);
         return (s==="*"&&elem.all) ? elem.all : elem.getElementsByTagName(s);
@@ -427,7 +427,7 @@ function jFun(rs)	{this.rs = rs;}
         });
     };
 
-    window.CLASS = function CLASS(s,elem)	
+    function CLASS(s,elem)	
     {
         elem= (elem || docc);
         elem.getElementsByClassName = elem.getElementsByClassName || getElemsByClass ;
@@ -594,6 +594,10 @@ function jFun(rs)	{this.rs = rs;}
     }
 
 
+    window.ID = ID;
+    window.TAG = TAG;
+    window.CLASS = CLASS;
+
 //========================private function below====================================
 //(function(){
 	var docc = document, tmpStack=[];
@@ -708,11 +712,11 @@ function jFun(rs)	{this.rs = rs;}
             });
         }
 
-        ,":each":   function(arr, str)
+        ,":each":   function(arr, selector)
         {
             var tmpArr = [];
             each(arr, function(e,i){
-                tmpArr = concatArr(tmpArr, _$([e],str) );
+                tmpArr = concatArr(tmpArr, _$([e],selector) );
             });
             return tmpArr;
 /*
