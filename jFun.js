@@ -708,20 +708,27 @@ function jFun(rs)	{this.rs = rs;}
             });
         }
 
-        ,":each":   function(arr, argArr)
+        ,":each":   function(arr, str)
         {
+            var tmpArr = [];
+            each(arr, function(e,i){
+                tmpArr = concatArr(tmpArr, _$([e],str) );
+            });
+            return tmpArr;
+/*
             var fn = TAG,
                 name = argArr[0],
                 numFnName = argArr[1],
                 numFnArg = argArr[2];
             if( shead(name) === "." )
-                fn=CLASS, name=sbody(name);
+                fn = CLASS, name = sbody(name);
 
             var tmpArr = [];
             each(arr, function(e,i){
                 tmpArr = concatArr(tmpArr, jFun.bytecodeList[numFnName]( fn(name,e), numFnArg ) );
             });
             return tmpArr;
+*/
         }
 
         ,":not":    function(arr)
@@ -980,13 +987,13 @@ function jFun(rs)	{this.rs = rs;}
             else if(/^:/.test(s[i]))
             {
                 s[i] = splitBy(s[i], /:[\=<>]|:[a-z\-]+|[^\(\)]+/gi);
-                if(s[i][0]===":each")
+             /*   if(s[i][0]===":each")
                 {
                     s[i][1] = splitBy(s[i][1], /[a-z\d]+|.+/gi);
                     var tmp = splitBy(s[i][1][1], /:[\=<>]|:[a-z\-]+|[^\(\)]+/gi);
                     s[i][1][1] = tmp[0];
                     s[i][1][2] = tmp[1];
-                }
+                }*/
                 s[i] = makeBytecode(s[i][0], s[i][1]) ;
             }
             else
