@@ -574,21 +574,21 @@ function jFun(rs)	{this.rs = rs;}
 
     function makeFnForNth(arg,indexof)
     {
-        indexof = indexof ? "indexOfSiblingsType" : "indexOfSiblings" ;
+        indexof = indexof ? indexOfSiblingsType : indexOfSiblings ;
         var fn, n ;
         if( has(["odd","even"],arg) )
-            fn = new Function("e","return is"+headUpper(arg)+"("+indexof+"(e));");
+            fn = function(e){return (arg==="odd"?isOdd:isEven)(indexof(e));}
         else if(isNum(n = +arg))
         {
             n = n<0? n : n-1 ;//index from 1, not 0
-            fn = new Function("e","return "+indexof+"(e,"+n+")==="+n);
+            fn = function(e){return indexof(e,n)===n;}
         }
         else
         {//an + b
             arg = arg.match(/[0-9]+/gi);
             arg[0] = +arg[0] ;
             arg[1] = arg[1] ? (+arg[1]) : 0;
-            fn = new Function("e","return ("+indexof+"(e)+1) % "+arg[0]+"==="+arg[1]);
+            fn = function(e){return (indexof(e)+1)%arg[0]===arg[1];}
         }//	alert(fn);
         return fn;
     }
