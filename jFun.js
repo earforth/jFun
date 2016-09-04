@@ -932,6 +932,7 @@ function jFun(rs)	{this.rs = rs;}
             rnode = "[>+~][a-z0-9]*",
             rattr = "\\[[^\\]]+\\]",
             rnot = ":not(?=\\()|\\(|\\)",
+            reach = ":each\\(([^()]+\\([^()]+\\))+\\)",
             rcolon_par = ":[a-z\\=<>][a-z\\-]*\\([^\\)]+\\)",
             rcolon = ":[a-z\\-]+",
             rcolon_sign_nega = ":[\\=<>]-\\d+",
@@ -939,11 +940,14 @@ function jFun(rs)	{this.rs = rs;}
             idReg=/^\#/,
             classReg=/^\./,
             tagReg=/^[a-z\*]/i;
-        var condition = new RegExp(rcomma+"|"+rclass_id_tag+"|"+rtag+"|"+rnode+"|"+rattr+"|"+rnot+"|"+rcolon_par+"|"+rcolon+"|"+rcolon_sign_nega+"|"+rcolon_sign,"gi");
+        var condition = new RegExp(rcomma+"|"+rclass_id_tag+"|"+rtag+"|"+rnode+"|"+rattr+"|"+rnot+"|"+reach+"|"+rcolon_par+"|"+rcolon+"|"+rcolon_sign_nega+"|"+rcolon_sign,"gi");
+
+        //alert("str:"+s)
         s = splitBy(s,condition);
+          
 
         for(var i=0, len = s.length; i < len; ++i)
-        {
+        {//alert(s[i])
             if( /^[a-z\*]/i.test(s[i]) )
                 s[i] = makeBytecode("TAG", s[i]) ;
             else if( /^[#`>+~\.]/.test(s[i])  ) 
@@ -975,14 +979,9 @@ function jFun(rs)	{this.rs = rs;}
             }
             else if(/^:/.test(s[i]))
             {
-                s[i] = splitBy(s[i], /:[\=<>]|:[a-z\-]+|[^\(\)]+/gi);
-             /*   if(s[i][0]===":each")
-                {
-                    s[i][1] = splitBy(s[i][1], /[a-z\d]+|.+/gi);
-                    var tmp = splitBy(s[i][1][1], /:[\=<>]|:[a-z\-]+|[^\(\)]+/gi);
-                    s[i][1][1] = tmp[0];
-                    s[i][1][2] = tmp[1];
-                }*/
+                s[i] = splitBy(s[i], /:[\=<>]|:[a-z\-]+|.+/gi);
+                if(s[i][1])
+                    s[i][1] = s[i][1].replace(/^\(|\)$/gi,"");
                 s[i] = makeBytecode(s[i][0], s[i][1]) ;
             }
             else
