@@ -605,26 +605,17 @@ function jFun(rs)	{this.rs = rs;}
 	var notSign = false;
 	function notGet(big,small)
 	{
-		var tmp=[];
+		
         if(notSign)
+        {
+		    var tmp=[];
+            notSign = false;
             each(small, function(e,i){if(!e){tmp.push(big[i]);}});
+            return tmp;
+        }
         else
-            each(small, function(e,i){if(e){tmp.push(e);}});
-		notSign = false;
-        return tmp;
-		var begin=-1, end;
-	//	small.push({notIndexArr: [big.length]});
-		small.push({notIndexArr: big.length});
-		for(var i=0, len = small.length; i < len; ++i)
-		{
-		//	for(begin++, end = small[i].notIndexArr.pop(); begin < end; begin++ )
-			for(begin++, end = small[i].notIndexArr; begin < end; begin++ )
-			{
-		//		big[begin].notIndexArr.pop();
-				tmp.push(big[begin]);
-			}
-		}
-		return tmp;
+            return small;
+            //each(small, function(e,i){if(e){tmp.push(e);}});
 	}
 
 	jFun.cmpSigns =
@@ -719,20 +710,6 @@ function jFun(rs)	{this.rs = rs;}
                 tmpArr = concatArr(tmpArr, _$([e],selector) );
             });
             return tmpArr;
-/*
-            var fn = TAG,
-                name = argArr[0],
-                numFnName = argArr[1],
-                numFnArg = argArr[2];
-            if( shead(name) === "." )
-                fn = CLASS, name = sbody(name);
-
-            var tmpArr = [];
-            each(arr, function(e,i){
-                tmpArr = concatArr(tmpArr, jFun.bytecodeList[numFnName]( fn(name,e), numFnArg ) );
-            });
-            return tmpArr;
-*/
         }
 
         ,":not":    function(arr)
@@ -743,26 +720,34 @@ function jFun(rs)	{this.rs = rs;}
 
         ,"(":   function(arr)	
         {
-            each(arr, function(e,i){e.notIndexArr = i;});
-            tmpStack.unshift(new Array(arr.length));
+            if(notSign)
+            {
+                each(arr, function(e,i){e.notIndexArr = i;});
+                tmpStack.unshift(new Array(arr.length));
+            }
+            else
+                tmpStack.unshift([]);
             tmpStack.push(arr);
             return arr;
         }
 
         ,",":   function(arr)	
         {
-            each(arr,function(e){
-                tmpStack[0][e.notIndexArr] = e;
-            });
+            if(notSign)
+                each(arr,function(e){tmpStack[0][e.notIndexArr] = e;});
+            else
+                tmpStack[0] = concatArr(tmpStack[0],arr);
+
             return lastOf(tmpStack);
         }
 
         ,")":   function(arr)
         {
-            each(arr,function(e){
-                tmpStack[0][e.notIndexArr] = e;
-             //   input.value=e.notIndexArr;
-            });
+            if(notSign)
+                each(arr,function(e){tmpStack[0][e.notIndexArr] = e;});
+            else
+                tmpStack[0] = concatArr(tmpStack[0],arr);
+
             return notGet(tmpStack.pop(), tmpStack.shift());
         }
 
