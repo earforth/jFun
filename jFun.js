@@ -139,11 +139,11 @@ function jFun(rs)	{this.rs = rs;}
         begin = begin || 0;
         end = end || args.length;
 
-        for(var t, i = begin-1; ++i < end; )
+        for(var type, i = begin-1; ++i < end; )
         {
-            t = typeAbb( typeoff(args[i]) );
-            (count[t]===undefined) ? (count[t]=0) : (count[t]++);
-            obj[t + count[t]] = args[i];
+            type = typeAbb( typeoff(args[i]) );
+            (count[type]===undefined) ? (count[type]=0) : (count[type]++);
+            obj[type + count[type]] = args[i];
         }
         return obj;
     }
