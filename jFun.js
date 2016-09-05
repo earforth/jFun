@@ -55,7 +55,9 @@ function jFun(rs)	{this.rs = rs;}
     function isFn(e)    {return typeoff(e) === "function";}
     function isArr(e)   {return typeoff(e) === "array";} 
     function isObj(e)   {return typeoff(e) === "object";}
-    function isArrLike(e){return e.length !== undefined;} 
+
+    function isWindow(e){return e===window;}
+    function isArrLike(e){return e.length!==undefined && !isWindow(e);} 
 
 
     function indexOfSorted(arr,elem)
@@ -83,7 +85,7 @@ function jFun(rs)	{this.rs = rs;}
 
         if(isArrLike(arr))
         {
-            for(var i=-1, len = arr.length; ++i < len; )
+            for(var i=-1, len = +arr.length; ++i < len; )
                 if(arr[i]===elem)
                     return i;
             return -1;	
@@ -124,31 +126,25 @@ function jFun(rs)	{this.rs = rs;}
     function typeAbb(s){
         return s==="function"? "fn" : ( s==="boolean"? "bool" : s.substr(0,3) );
     }
-
-    function typeArg(arr,begin,end)
+    function typeArgExcept(s)
     {
-        var types =	{};
-        var obj={};
+        s += " except";
+        for(var i in this)
+            if(!has(s, i) )
+                return this[i];
+    }
+    function typeArg(args,begin,end)
+    {
+        var count = {}, obj = {except : typeArgExcept} ;
         begin = begin || 0;
-        end = end || arr.length;
+        end = end || args.length;
 
-        for(var i = begin-1; ++i < end; )
+        for(var t, i = begin-1; ++i < end; )
         {
-            var t = typeAbb(typeoff(arr[i]));
-            (types[t]) ? (types[t]++) : (types[t]=0);
-            obj[t + types[t]] = arr[i];
-        //	if(obj[t]===undefined)
-        //		obj[t]=[];
-        //	obj[t].push(arr[i]); 
+            t = typeAbb( typeoff(args[i]) );
+            (count[t]===undefined) ? (count[t]=0) : (count[t]++);
+            obj[t + count[t]] = args[i];
         }
-
-        obj.except = function(s)
-        {
-            s += " except";
-            for(var i in this)
-                if(!has(s, i) )
-                    return this[i];
-        };
         return obj;
     }
 
@@ -377,7 +373,7 @@ function jFun(rs)	{this.rs = rs;}
 
         try { [].push.apply(arr,obj); }
         catch(e){
-            for(var i=-1, len=obj.length; ++i<len; )
+            for(var i=-1, len = +obj.length; ++i<len; )
                 arr.push(obj[i]);
         }
         return arr;
@@ -469,8 +465,7 @@ function jFun(rs)	{this.rs = rs;}
     function slice(arr, begin, end, step)
     {
         begin =	ifNegaIndex(arr, begin);
-        end =	end || arr.length;
-        end =	ifNegaIndex(arr, end);
+        end =	ifNegaIndex(arr, (end || arr.length));
 
         if( !step )
         {
@@ -489,14 +484,13 @@ function jFun(rs)	{this.rs = rs;}
     function selectByNum(arr,n)	{return arr[ifNegaIndex(arr,n)];}
 
 
-    function timer(fn)
+    function timer(fn,args)
     {
-        var args = slice(arguments,1),
-            t1 = new Date();
+        var t1 = new Date();
 
-        fn.apply(this, args);
+        fn.apply(this, (args||[]));
 
-        var t2=new Date();
+        var t2 = new Date();
         return t2-t1;
     }
 
@@ -593,10 +587,15 @@ function jFun(rs)	{this.rs = rs;}
         return fn;
     }
 
-
-    window.ID = ID;
-    window.TAG = TAG;
-    window.CLASS = CLASS;
+    var ns = window;
+    ns.ID = ID;
+    ns.TAG = TAG;
+    ns.CLASS = CLASS;
+    ns.typeoff = typeoff;
+    ns.timer = timer;
+    ns.has = has;
+    ns.each = each;
+    ns.splitBySpace = splitBySpace;
 
 //========================private function below====================================
 //(function(){
@@ -932,7 +931,7 @@ function jFun(rs)	{this.rs = rs;}
             rnode = "[>+~][a-z0-9]*",
             rattr = "\\[[^\\]]+\\]",
             rnot = ":not(?=\\()|\\(|\\)",
-            reach = ":each\\(([^()]+\\([^()]+\\))+\\)",
+            reach = ":each\\(([^()]+(\\([^()]+\\))*)+\\)",
             rcolon_par = ":[a-z\\=<>][a-z\\-]*\\([^\\)]+\\)",
             rcolon = ":[a-z\\-]+",
             rcolon_sign_nega = ":[\\=<>]-\\d+",
