@@ -67,9 +67,9 @@ function jFun(rs)	{this.rs = rs;}
         {
             i = Math.floor( (begin+end)/2 );
             if(elem<arr[i])
-                end = i-1;		//elem before arr[i]
+                end = i-1;      //elem before arr[i]
             else if(elem>arr[i])
-                begin = i+1;	//elem after arr[i]
+                begin = i+1;    //elem after arr[i]
             else
                 return i;
         }
@@ -85,7 +85,7 @@ function jFun(rs)	{this.rs = rs;}
 
         if(isArrLike(arr))
         {
-            for(var i=-1, len = +arr.length; ++i < len; )
+            for(var i=0, len = +arr.length; i < len; i++)
                 if(arr[i]===elem)
                     return i;
             return -1;	
@@ -114,7 +114,7 @@ function jFun(rs)	{this.rs = rs;}
         catch(e)
         {
             var arr=[];
-            for(var i=-1, len=obj.length; ++i<len; )
+            for(var i=0, len=obj.length; i<len; i++)
                 arr.push(obj[i]);
             return arr;
         }
@@ -126,20 +126,13 @@ function jFun(rs)	{this.rs = rs;}
     function typeAbb(s){
         return s==="function"? "fn" : ( s==="boolean"? "bool" : s.substr(0,3) );
     }
-    function typeArgExcept(s)
-    {
-        s += " except";
-        for(var i in this)
-            if(!has(s, i) )
-                return this[i];
-    }
     function typeArg(args,begin,end)
     {
         var count = {}, obj = {except : typeArgExcept} ;
         begin = begin || 0;
-        end = end || args.length;
+        end =   end   || args.length;
 
-        for(var type, i = begin-1; ++i < end; )
+        for(var type, i = begin; i < end; i++)
         {
             type = typeAbb( typeoff(args[i]) );
             (count[type]===undefined) ? (count[type]=0) : (count[type]++);
@@ -147,15 +140,22 @@ function jFun(rs)	{this.rs = rs;}
         }
         return obj;
     }
+    function typeArgExcept(s)
+    {
+        s += " except";
+        for(var i in this)
+            if(!has(s, i) )
+                return this[i];
+    }
 
     function swapObjAttr(obj1,s1,obj2,s2)
     {
         if(arguments.length <4)
-            s2=obj2, obj2=obj1;
+            s2 = obj2, obj2 = obj1;
 
-        var t=obj1[s1];
-        obj1[s1]=obj2[s2];
-        obj2[s2]=t;
+        var t = obj1[s1];
+        obj1[s1] = obj2[s2];
+        obj2[s2] = t;
     };
 
     function lastOf(arr)    {return arr[arr.length-1];}
@@ -165,19 +165,20 @@ function jFun(rs)	{this.rs = rs;}
     {
         var a = typeArg(arguments,1);
         begin = a.num0 || 0;	
-        end =	a.num1 || arr.length;
-        fn =	a.fn0;
+        end =   a.num1 || arr.length;
+        fn =    a.fn0;
         directArr = a.arr0 || a.obj0 || arr;
         
         var retVal;
         if( isArrLike(arr) ) 
         {//array like
-            for(var i= begin-1; ++i<end; )
+            for(var i= begin; i<end; i++)
             {
-                retVal = fn.call(arr[i],arr[i], i) ;
+                retVal = fn.call(arr[i], arr[i], i) ;
                 if(retVal !== undefined)
                 {
-                    if(retVal===false) break;                
+                    if(retVal===false) break;
+                    if(retVal===true) continue;            
                     directArr[i] = retVal;
                 }
             }
@@ -186,10 +187,11 @@ function jFun(rs)	{this.rs = rs;}
         {//object
             for( var i in arr)
             {
-                retVal = fn.call(arr[i],arr[i], i) ;
+                retVal = fn.call(arr[i], arr[i], i) ;
                 if(retVal !== undefined)
                 {
-                    if(retVal===false) break;                
+                    if(retVal===false) break;
+                    if(retVal===true) continue;            
                     directArr[i] = retVal;
                 }
             }
@@ -205,9 +207,9 @@ function jFun(rs)	{this.rs = rs;}
     }
 
 
-    function existNamespace(obj)//str1,str2....
+    function existNamespace(obj /*,str1,str2...*/)
     {
-        for(var i= 1-1, len = arguments.length; ++i < len; )
+        for(var i= 1, len = arguments.length; i < len; i++)
         {
             if(obj[arguments[i]]===undefined)
                 return false;
@@ -216,7 +218,7 @@ function jFun(rs)	{this.rs = rs;}
         return obj;
     }
 
-    function namespace(obj)//str1,str2....
+    function namespace(obj /*,str1,str2...*/)
     {
         each(arguments,1,function(name)
         {
@@ -225,15 +227,6 @@ function jFun(rs)	{this.rs = rs;}
             obj=obj[name];
         });
         return obj;
-    }
-    function arrspace(obj)//str1,str2....
-    {
-        each(arguments,1,function(name)
-        {
-            if(obj[name]===undefined)
-                obj[name]=[];
-            obj=obj[name];
-        });
     }
 
 
@@ -373,7 +366,7 @@ function jFun(rs)	{this.rs = rs;}
 
         try { [].push.apply(arr,obj); }
         catch(e){
-            for(var i=-1, len = +obj.length; ++i<len; )
+            for(var i=0, len = +obj.length; i<len; i++)
                 arr.push(obj[i]);
         }
         return arr;
@@ -388,7 +381,7 @@ function jFun(rs)	{this.rs = rs;}
         condFn=	a.fn0;		
         directArr = a.arr0 || [];
         
-        for(var i= begin-1; ++i<end; )
+        for(var i= begin; i<end; i++)
             if( condFn(arr[i]) )
                 directArr.push(arr[i]);
         return directArr;
@@ -528,7 +521,7 @@ function jFun(rs)	{this.rs = rs;}
     function isOnlyOfType(e)
     {
         var sum = 0, tagName = e.nodeName, list = e.parentNode.children;
-        for(var i=0, len = list.length; i < len; ++i)
+        for(var i=0, len = list.length; i < len; i++)
             if( tagName===list[i].nodeName )
                 if(++sum>1) return false ;
         return true;
@@ -596,6 +589,7 @@ function jFun(rs)	{this.rs = rs;}
     ns.has = has;
     ns.each = each;
     ns.splitBySpace = splitBySpace;
+    ns.typeArg = typeArg;
 
 //========================private function below====================================
 //(function(){
@@ -670,7 +664,7 @@ function jFun(rs)	{this.rs = rs;}
                 if(i===len) return ;
                 if(!tagName){ tmpArr.push(list[i]); return ;}
 
-                for(; i < len; ++i)
+                for(; i < len; i++)
                 {
                     if(list[i].nodeName !== tagName)
                         continue;
@@ -873,7 +867,7 @@ function jFun(rs)	{this.rs = rs;}
 
     function execBytecode(arr, bcs)
     {//*//".class:not([href],[src])"
-        for(var i= -1, len = bcs.length; ++i < len; )
+        for(var i= 0, len = bcs.length; i < len; i++)
         {
             
         //alert(indexOf(jFun.bytecodeList,bcs[i].fn)+":"+bcs[i].arg)
@@ -945,7 +939,7 @@ function jFun(rs)	{this.rs = rs;}
         s = splitBy(s,condition);
           
 
-        for(var i=0, len = s.length; i < len; ++i)
+        for(var i=0, len = s.length; i < len; i++)
         {//alert(s[i])
             if( /^[a-z\*]/i.test(s[i]) )
                 s[i] = makeBytecode("TAG", s[i]) ;
