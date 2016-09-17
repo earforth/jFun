@@ -4,17 +4,61 @@
 function jFun(rs)	{this.rs = rs;}
 
 
-(function(){
-    var docc=document;
+(function(window){
+    var docc = document ;
 
+    jFun.init = function()
+    {
+        var a = typeArg(arguments),
+            selector = a.str0,
+            rs = a.except("str0") || docc;
+        rs = rs.length===undefined? [rs] : rs;
+
+        if(selector)
+            rs = _$(rs, selector);
+        return new jFun(rs);
+    };
+
+
+    var old$ = window.$ ;
+    var $ = window.$ = jFun.init;
+    $.noConflict = function()
+    {
+        if(window.$===jFun.init)
+            window.$ = old$;
+    }
+
+/*
     Number.prototype.tofixed = function(n)
     {
         n = Math.pow(10, n);
         return Math.round(this*n) / n;
     }
+*/
     String.prototype.replaceAll = function(s1,s2){return this.replace(new RegExp(s1,"gm"),s2);};
 
-    function ready(fn)  {window.onload = function(){fn(jFun.init)}}
+    function gcd(a, b)
+    {
+        if(a%b===0)
+            return b;
+        return gcd(b,a%b);
+    }
+    Math.gcd = gcd ;
+
+    function ready(fn)
+    {
+        var oldOnload = window.onload;
+        window.onload = function()
+        {
+            if(oldOnload) 
+                oldOnload(); 
+            fn($); 
+        };
+     //   window.onload = (typeof oldOnload !== 'function') ? 
+     //                       function(){fn($)} : 
+     //                       function(){ oldOnload(); fn($); };
+	}
+    $.ready = ready;
 
     function isOdd(n)   {return (n & 1);}
     function isEven(n)  {return !isOdd(n);}
@@ -140,11 +184,11 @@ function jFun(rs)	{this.rs = rs;}
         }
         return obj;
     }
-    function typeArgExcept(s)
+    function typeArgExcept(str)
     {
-        s += " except";
+        str += " except";
         for(var i in this)
-            if(!has(s, i) )
+            if(!has(str, i) )
                 return this[i];
     }
 
@@ -182,6 +226,7 @@ function jFun(rs)	{this.rs = rs;}
                     directArr[i] = retVal;
                 }
             }
+            directArr.length = i;
         }
         else
         {//object
@@ -246,7 +291,7 @@ function jFun(rs)	{this.rs = rs;}
         return htSign[type].h + str + htSign[type].t;
     }
 
-    function outputObj(obj,n)
+    function outputObj(obj)
     {
         var str = "",
     //		tabs = "",
@@ -262,7 +307,7 @@ function jFun(rs)	{this.rs = rs;}
 
             str += ( (bool?"{":"["));
             each(obj, function(elem,i){
-                tmpArr.push( (bool?('"'+i+'":'):"") + outputObj(elem,n+1) );
+                tmpArr.push( (bool?('"'+i+'":'):"") + outputObj(elem) );
             });
             str += tmpArr.join("," )
             str += ((bool?"}":"]") + "\n");
@@ -277,44 +322,57 @@ function jFun(rs)	{this.rs = rs;}
 
     function copyStr(str)
     {
+        if (window.clipboardData) 
+        {
+            window.clipboardData.clearData(); 
+            window.clipboardData.setData("Text", str); 
+            alert("已经成功复制到剪帖板上！"); 
+        }
+        else 
+        {
+            alert(str);
+            return ;
+        
+        }
+        /*
         var TEXTAREA = document.createElement("TEXTAREA");
         TEXTAREA.value = str;
         TEXTAREA.select();
-        TEXTAREA.createTextRange().execCommand("Copy");
+        TEXTAREA.createTextRange().execCommand("Copy");*/
     }
 
-
-    function ajax(url,method,data,async,fn)
+//*
+    function ajax(options)
     {
-        var a = typeArg(arguments);
-        url = a.str0;
-        method = a.str1 || "GET",
-        data = a.str2 || "",
-        async = a.bool0 || true,
-        fn = a.fn0;
+        var o = options;
+       // url,method,data,async,fn,type
+
+
+        o.method =  upper(o.method || o.type || "GET");
+        o.data =    o.data || "";
         
         var aj = new (window.XMLHttpRequest || ActiveXObject)("Microsoft.XMLHTTP");
-        aj.onreadystatechange = function(){
-            if(aj.readyState==4 && aj.status==200)
-                fn({//json:	aj.responseJSON,
-                    text:	aj.responseText, 
-                    xml:	aj.responseXML});
-        }
-
-        aj.open(method, url, async);
-        if(upper(method)==="GET")
-            aj.send();
-        else
+        aj.onreadystatechange = function()
         {
-            aj.setRequestHeader("Content-type","application/x-www-form-urlencoded");
-            aj.send(data);
+            if(aj.readyState==4 && aj.status==200)
+            {
+                var res = {//json:	aj.responseJSON,
+                            text:	aj.responseText, 
+                            xml:	aj.responseXML};
+                fn(res[o.dataType || "text"]);
+            }
         }
+
+        aj.open(o.method, url + (o.method==="GET"?"?"+o.data:""), o.async||true);
+        if(o.method==="POST" && o.data)
+            aj.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+        aj.send(o.data || null);
     }
+//*/
 
-
-    function splitBy(s,reg) {return s.match(reg);}
+    function splitBy(s,reg) {return s.match(reg) || [];}
     function splitBySpace(s){return splitBy(s,/[^\s\n]+/g);}
-    function splitByEqu(s)  {return s.match(/\=|[^\s\=]+/g);}
+    function splitByEqu(s)  {return splitBy(s,/\=|[^\s\=]+/g);}
 
     function splitBySemicolon(s)    {return s.split(";")}
 
@@ -327,8 +385,9 @@ function jFun(rs)	{this.rs = rs;}
 
     function splitByComma(s)
     {
-        var head=shead(s);
-        s=sbody(s).split(",");
+        var head = shead(s);
+        s = sbody(s);
+        s = s.split(",");
         for(var i=0; i<s.length; i++)
             if( ! isParenMatch(s[i]) )
             {
@@ -346,14 +405,19 @@ function jFun(rs)	{this.rs = rs;}
         window.JSON = {};
         window.JSON.stringify = outputObj;
         window.JSON.parse = function(str)
-        {//not strict
+        {
             function notJSON(){alert("not JSON:  "+str);}
-            try {return eval("("+str+")");}
+            try {return (new Function("return "+str))();}
             catch(e){notJSON()}
         }
     }
 
 
+    if(!window.console)
+    {
+        window.console = {log:function(obj){alert(obj)}};
+        window.console.dir = window.console.log;
+    }
      
 
 
@@ -361,7 +425,7 @@ function jFun(rs)	{this.rs = rs;}
 
     function concatArr(arr, obj)    //modify arr unless ( arr===[] && isArr(obj) )
     {
-        if( arr===[] && isArr(obj) )
+        if( arr.length===0 && isArr(obj) )
             return obj;
 
         try { [].push.apply(arr,obj); }
@@ -373,18 +437,28 @@ function jFun(rs)	{this.rs = rs;}
     }
 
 
-    function selectInArr(arr, begin,end, directArr, condFn)
+    function filter(arr, begin,end, condFn)
     {
         var a = typeArg(arguments,1);
         begin = a.num0 || 0;	
         end =	a.num1 || arr.length;
-        condFn=	a.fn0;		
-        directArr = a.arr0 || [];
-        
-        for(var i= begin; i<end; i++)
-            if( condFn(arr[i]) )
-                directArr.push(arr[i]);
-        return directArr;
+        condFn=	a.fn0;
+
+        if(isArrLike(arr))
+        {
+            var direct = [];        
+            for(var i= begin; i<end; i++)
+                if( condFn(arr[i]) )
+                    direct.push(arr[i]);
+        }
+        else
+        {
+            var direct = {};        
+            for(var i in arr)
+                if( condFn(arr[i]) )
+                    direct[i] = arr[i];
+        }
+        return direct;
     }
 
 
@@ -411,7 +485,8 @@ function jFun(rs)	{this.rs = rs;}
 
     function getElemsByClass(s)
     {
-        return selectInArr( TAG("*",this), function(elem){
+        return filter( TAG("*",this), function(elem){
+          //  return has(splitBySpace(elem.className), s);
             return has(elem.className.split(" "), s);
         });
     };
@@ -429,7 +504,7 @@ function jFun(rs)	{this.rs = rs;}
             tagName = a.str0,
             list = (a.htm0 || a.obj0).children;
 
-        return !tagName ? list : selectInArr(list, isTagName(tagName) );
+        return !tagName ? list : filter(list, isTagName(tagName) );
     }
 
     function SIBLING()
@@ -440,7 +515,7 @@ function jFun(rs)	{this.rs = rs;}
             list = elem.parentNode.children,
             cmpFn = tagName ? isTagName(tagName) : retTrue ;
 
-        return selectInArr(list, cmpFn, indexOf(list,elem)+1);
+        return filter(list, cmpFn, indexOf(list,elem)+1);
     }
 
 
@@ -506,14 +581,14 @@ function jFun(rs)	{this.rs = rs;}
         return e.type && type==lower(e.type) && "INPUT"==e.nodeName;
     }
 
-    function selectInArrByInputType(arr,type)
+    function filterByInputType(arr,type)
     {
-        return selectInArr(arr, function(e){return isInputType(e,type);});
+        return filter(arr, function(e){return isInputType(e,type);});
     }
 
     function makeFnSelectByInputType(type)
     {
-        return function(arr){return selectInArrByInputType(arr, type);}
+        return function(arr){return filterByInputType(arr, type);}
     }
 
 
@@ -539,7 +614,7 @@ function jFun(rs)	{this.rs = rs;}
 
     function indexOfSiblingsType(node, n)
     {
-        var list = selectInArr(node.parentNode.children, isTagName(node.nodeName)),
+        var list = filter(node.parentNode.children, isTagName(node.nodeName)),
             i = indexOf(list, node),
             n = n || 0;
         return n<0 ? (i-list.length) : i ;
@@ -590,6 +665,9 @@ function jFun(rs)	{this.rs = rs;}
     ns.each = each;
     ns.splitBySpace = splitBySpace;
     ns.typeArg = typeArg;
+    ns.outputObj = outputObj;
+    ns.copyStr = copyStr;
+    ns.ajax = ajax;
 
 //========================private function below====================================
 //(function(){
@@ -633,15 +711,15 @@ function jFun(rs)	{this.rs = rs;}
         } 
 
         ,"#":   function(arr,name){
-            return selectInArr(arr, function(e){return e.id===name;});
+            return filter(arr, function(e){return e.id===name;});
         }
 
         ,".":   function(arr,name){
-            return selectInArr(arr, function(e){return has(splitBySpace(e.className), name);});
+            return filter(arr, function(e){return has(splitBySpace(e.className), name);});
         }
 
         ,"`":   function(arr,tagName){//tagName select
-            return selectInArr(arr, isTagName(upper(tagName)));
+            return filter(arr, isTagName(upper(tagName)));
         }
 
         ,">":   function(arr, tagName){
@@ -681,7 +759,7 @@ function jFun(rs)	{this.rs = rs;}
                 sign = args[1],
                 val  = args[2];
 
-            return selectInArr(arr, function(e)
+            return filter(arr, function(e)
             {
                 if(attr==="class")
                 {
@@ -753,37 +831,37 @@ function jFun(rs)	{this.rs = rs;}
         ,":odd":    function(arr){return slice(arr, 1, arr.length, 2);}
 
         ,":header": function(arr){
-            return selectInArr(arr, function(e){return /^h\d/i.test(e.nodeName);});
+            return filter(arr, function(e){return /^h\d/i.test(e.nodeName);});
         }
 
         ,":root":   function(){return TAG("html");}
 
         ,":contains":function(arr, arg){
-            return selectInArr(arr, function(e){return has(e.innerText,arg);});
+            return filter(arr, function(e){return has(e.innerText,arg);});
         }
 
         ,":empty":  function(arr){
-            return selectInArr(arr, function(e){return ! e.firstChild;});
+            return filter(arr, function(e){return ! e.firstChild;});
         }
 
         ,":parent": function(arr){
-            return selectInArr(arr, function(e){return e.innerHTML !== "";});
+            return filter(arr, function(e){return e.innerHTML !== "";});
         }
 
         ,":has":    function(arr, tagName){	//has tagName
-            return selectInArr(arr, function(e){return new RegExp("<"+tagName+"[\\s>]", "i").test(e.innerHTML);});
+            return filter(arr, function(e){return new RegExp("<"+tagName+"[\\s>]", "i").test(e.innerHTML);});
         }
 
         ,":hidden": function(arr){
-            return selectInArr(arr, function(e){return isHidden(e);});
+            return filter(arr, function(e){return isHidden(e);});
         }
 
         ,":visible":function(arr){
-            return selectInArr(arr, function(e){return ! isHidden(e);});
+            return filter(arr, function(e){return ! isHidden(e);});
         }
 
         ,":input":  function(arr){
-            return selectInArr(arr, function(e){
+            return filter(arr, function(e){
                 return has(["INPUT","TEXTAREA","BUTTON","SELECT"], e.nodeName);
             });
         }
@@ -797,21 +875,21 @@ function jFun(rs)	{this.rs = rs;}
         ,":file":   makeFnSelectByInputType("file")
         ,":reset":  makeFnSelectByInputType("reset")
         ,":button": function(arr){
-            return selectInArr(arr, function(e){
+            return filter(arr, function(e){
                 return isInputType(e,"button") || "BUTTON"===e.nodeName;
             });
         }
 
         ,":enabled":    function(arr){
-            return selectInArr(arr, function(e){return !e.disabled;});
+            return filter(arr, function(e){return !e.disabled;});
         }
 
         ,":disabled":   function(arr){
-            return selectInArr(arr, function(e){return e.disabled;});
+            return filter(arr, function(e){return e.disabled;});
         }
 
         ,":checked":    function(arr){a
-            return selectInArr(arr, function(e){
+            return filter(arr, function(e){
                 var name = e.nodeName;
                 return (name==="INPUT" && e.checked) || 
                         (name==="OPTION" && e.selected);
@@ -819,47 +897,47 @@ function jFun(rs)	{this.rs = rs;}
         }
 
         ,":selected":   function(arr, arg){
-            return selectInArr(arr, function(e){return e.nodeName==="OPTION" && e.selected;});
+            return filter(arr, function(e){return e.nodeName==="OPTION" && e.selected;});
         }
 
         ,":only-child": function(arr){
-            return selectInArr(arr, function(e){return e.parentNode.children.length===1;});
+            return filter(arr, function(e){return e.parentNode.children.length===1;});
         }
 
         ,":only-of-type":function(arr){
-            return selectInArr(arr, function(e){return isOnlyOfType(e);});
+            return filter(arr, function(e){return isOnlyOfType(e);});
         }
 
         ,":first-child":function(arr)
         {
-            //return selectInArr(arr, function(e){return e===e.parentNode.firstChild;});
-            return selectInArr(arr, function(e){ return isNodeIndex(e,0); });	
+            //return filter(arr, function(e){return e===e.parentNode.firstChild;});
+            return filter(arr, function(e){ return isNodeIndex(e,0); });	
         }
 
         ,":last-child": function(arr)
         {
-            //return selectInArr(arr, function(e){return e===e.parentNode.lastChild;});
-            return selectInArr(arr, function(e){ return isNodeIndex(e,-1); });	
+            //return filter(arr, function(e){return e===e.parentNode.lastChild;});
+            return filter(arr, function(e){ return isNodeIndex(e,-1); });	
         }
 
         ,":first-of-type":function(arr){
-            return selectInArr(arr, function(e){return indexOfSiblingsType(e)===0});
+            return filter(arr, function(e){return indexOfSiblingsType(e)===0});
         }
 
         ,":last-of-type":function(arr){
-            return selectInArr(arr, function(e){return indexOfSiblingsType(e,-1)===-1});
+            return filter(arr, function(e){return indexOfSiblingsType(e,-1)===-1});
         }
 
         ,":nth-child":  function(arr,arg){
-            return selectInArr(arr, makeFnForNth(arg));
+            return filter(arr, makeFnForNth(arg));
         }
 
         ,":nth-of-type":function(arr, arg){
-            return selectInArr(arr, makeFnForNth(arg,"type"));
+            return filter(arr, makeFnForNth(arg,"type"));
         }
     /*
         ,":sdf":    function(arr, arg){
-            return selectInArr(arr, function(e){return e;});
+            return filter(arr, function(e){return e;});
         }
     */
     };
@@ -1001,27 +1079,6 @@ function jFun(rs)	{this.rs = rs;}
         return execTree( rs, tree );
     }
 
-    jFun.init = function()
-    {
-        var a = typeArg(arguments),
-            selector = a.str0,
-            rs = a.except("str0") || docc;
-        rs = rs.length===undefined? [rs] : rs;
-
-        if(selector)
-            rs = _$(rs, selector);
-        return new jFun(rs);
-    }
-
-    if(window.$)
-        window._$ = window.$;
-    window.$ = jFun.init;
-    window.$.ready = ready;
-    window.$.noConflict = function()
-    {
-        var tmp; 
-        tmp=window.$, window.$=window._$, window._$=tmp;
-    }
 
 //==================================================================*/
 //==================================================================*/
@@ -1095,15 +1152,15 @@ function jFun(rs)	{this.rs = rs;}
 
     function joinHTML(arr)
     {
-        var str="";
+        var str=[];
         each(arr, function(e)
         {
             if( isStr(e) )	
-                str += e;
+                str.push(e);
             else 
-                str += e.outerHTML;
+                str.push(e.outerHTML);
         });	
-        return str;
+        return str.join("");
     }
 
     function HTML2Node(arr)
@@ -1280,9 +1337,9 @@ function jFun(rs)	{this.rs = rs;}
                 elem["on"+type].apply(elem,dataArr); 
             });
         }
-        
-        ,on:    function()//types[,selector][,data],fn[,one] || [selector,][data,]obj
-        {//attachEvent addEventListener
+        //attachEvent addEventListener
+        ,on:    function()
+        {/*types[,selector][,data],fn[,one] || [selector,][data,]obj*/
             var a = typeArg(arguments),			
                 fn = a.fn0;
             if(fn)
@@ -1548,6 +1605,5 @@ function jFun(rs)	{this.rs = rs;}
     }
 
 
-})();
-
+})(window===undefined ? this : window);
 
