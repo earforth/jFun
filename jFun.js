@@ -54,7 +54,7 @@ function jFun(rs)	{this.rs = rs;}
                 oldOnload(); 
             fn($); 
         };
-     //   window.onload = (typeof oldOnload !== 'function') ? 
+     //   window.onload = ( oldOnload===null) ? 
      //                       function(){fn($)} : 
      //                       function(){ oldOnload(); fn($); };
 	}
@@ -87,7 +87,7 @@ function jFun(rs)	{this.rs = rs;}
     var typeList={};
     function typeoff(obj)
     {//(NaN===NaN)===false ; isNaN(fn)===true
-        if(obj===null || obj===undefined || (typeof obj==="number" && isNaN(obj))) 
+        if(obj == null || (typeof obj==="number" && isNaN(obj))) 
             return String(obj);
 
         var i = {}.toString.call(obj);
@@ -153,7 +153,7 @@ function jFun(rs)	{this.rs = rs;}
         if(isArr(obj))	return obj;
         if(obj.toArray)	return obj.toArray();
         try {
-            return Array.prototype.slice.call(obj,0)
+            return [].slice.call(obj)
         }
         catch(e)
         {
@@ -291,34 +291,6 @@ function jFun(rs)	{this.rs = rs;}
         return htSign[type].h + str + htSign[type].t;
     }
 
-    function outputObj(obj)
-    {
-        var str = "",
-    //		tabs = "",
-            type = typeoff(obj);
-
-    //	for(var i=0; i<n; i++)
-    //		tabs += "	";
-
-        if( has(["object","array"], type) )
-        {
-            var tmpArr = [],
-                bool = (type==="object") ;
-
-            str += ( (bool?"{":"["));
-            each(obj, function(elem,i){
-                tmpArr.push( (bool?('"'+i+'":'):"") + outputObj(elem) );
-            });
-            str += tmpArr.join("," )
-            str += ((bool?"}":"]") + "\n");
-        }
-        else if(type==="string")
-            str += ('"'+String(obj)+'"');
-        else
-            str += String(obj);
-        
-        return str;
-    }
 
     function copyStr(str)
     {
@@ -400,24 +372,54 @@ function jFun(rs)	{this.rs = rs;}
         return s;
     }
 
+
+
+    window.console = window.console || {log: alert, dir: alert};
+            
     if(!window.JSON)
     {
         window.JSON = {};
-        window.JSON.stringify = outputObj;
+
+        var notJSON = function(str){alert("not JSON:  "+str);}
+
         window.JSON.parse = function(str)
         {
-            function notJSON(){alert("not JSON:  "+str);}
+            str = trim(str);
+            if( ! /^\{.*\}$/.test(str))
+                return notJSON(str);
+
             try {return (new Function("return "+str))();}
-            catch(e){notJSON()}
+            catch(e){notJSON(str)}
         }
+
+        window.JSON.stringify = function(obj)
+        {
+            var str = "",
+                type = typeoff(obj);
+
+            if( has(["object","array"] , type) )
+            {
+                var tmpArr = [],
+                    bool = (type==="object") ;
+
+                str += ( (bool?"{":"["));
+                each(obj, function(elem,i){
+                    tmpArr.push( (bool?('"'+i+'":'):"") + window.JSON.stringify(elem) );
+                });
+                str += tmpArr.join("," )
+                str += ((bool?"}":"]") + "\n");
+            }
+            else if(type==="string")
+                str += ('"'+obj+'"');
+            else
+                str += String(obj);
+            return str;
+        };
+
+
     }
 
 
-    if(!window.console)
-    {
-        window.console = {log:function(obj){alert(obj)}};
-        window.console.dir = window.console.log;
-    }
      
 
 
@@ -665,7 +667,6 @@ function jFun(rs)	{this.rs = rs;}
     ns.each = each;
     ns.splitBySpace = splitBySpace;
     ns.typeArg = typeArg;
-    ns.outputObj = outputObj;
     ns.copyStr = copyStr;
     ns.ajax = ajax;
 
@@ -1590,7 +1591,11 @@ function jFun(rs)	{this.rs = rs;}
             return this.on(type,data,fn);
         }
     });
-
+//=====================================================================
+    function getRandomColor(){
+        return "#"+Math.random().toString(16).replace(/^0\.{0,1}/,"000000").slice(-6);
+    }
+//=====================================================================
 
     var ns = jFun.bytecodeList;
     ns[":eq"] = ns[":="];
