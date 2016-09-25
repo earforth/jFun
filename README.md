@@ -31,6 +31,7 @@ $("p").css("color:red;bg:yellow").attr(".alt='this is p'")
 
 
 
+"\*[alt=sdf]"内部不使用引号，非"\*[alt='sdf']"
 不会在以":"和"["开头的搜索语句前自动补全"\*", 只能写成"\*[href$=.jpg]"之类, 以方便字节码调用
 
 为性能考虑,":not"不支持嵌套":not"(若有需要再支持嵌套:not)
