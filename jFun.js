@@ -1610,5 +1610,5 @@ function jFun(rs)	{this.rs = rs;}
     }
 
 
-})(window===undefined ? this : window);
+})(window==="undefined" ? this : window);
 
